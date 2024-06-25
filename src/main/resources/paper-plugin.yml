@@ -1,0 +1,11 @@
+name: smCore
+version: '${version}'
+main: dev.sonmiike.smcore.SmCore
+api-version: '1.21'
+dependencies:
+  server:
+    LuckPerms:
+      load: BEFORE
+      required: true
+      join-classpath: true
+
