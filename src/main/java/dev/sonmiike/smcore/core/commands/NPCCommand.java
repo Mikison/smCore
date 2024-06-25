@@ -33,33 +33,32 @@ public class NPCCommand {
             .executes((source) -> {
                 CommandSourceStack sourceStack = source.getSource();
                 if (sourceStack.getSender() instanceof Player) {
-                    Player player = (Player) sourceStack.getSender();
-                    CraftPlayer craftPlayer = (CraftPlayer) player;
-                    ServerPlayer serverPlayer = craftPlayer.getHandle();
-                    if (serverPlayer == null) return 0;
+                    final Player player = (Player) sourceStack.getSender();
+                    final CraftPlayer craftPlayer = (CraftPlayer) player;
+                    final ServerPlayer serverPlayer = craftPlayer.getHandle();
 
-                    MinecraftServer server = serverPlayer.getServer();
-                    ServerLevel level = serverPlayer.serverLevel();
+                    final MinecraftServer server = serverPlayer.getServer();
+                    final ServerLevel level = serverPlayer.serverLevel();
 
-                    GameProfile gameProfile = new GameProfile(UUID.randomUUID(), "Rynek");
+                    final GameProfile gameProfile = new GameProfile(UUID.randomUUID(), "Rynek");
                     gameProfile.getProperties().put("textures", new Property("textures", TEXTURE, SIGNATURE));
 
-                    ServerPlayer npcPlayer = new ServerPlayer(server, level, gameProfile, ClientInformation.createDefault());
+                    final ServerPlayer npcPlayer = new ServerPlayer(server, level, gameProfile, ClientInformation.createDefault());
 
                     npcPlayer.setGlowingTag(true);
 
-                    Location location = player.getLocation();
+                    final Location location = player.getLocation();
                     npcPlayer.setPos(location.getX(), location.getY(), location.getZ());
 
 
-                    ClientboundPlayerInfoUpdatePacket.Entry entry = new ClientboundPlayerInfoUpdatePacket.Entry(
+                    final ClientboundPlayerInfoUpdatePacket.Entry entry = new ClientboundPlayerInfoUpdatePacket.Entry(
                         gameProfile.getId(), gameProfile, false, 1, net.minecraft.world.level.GameType.SURVIVAL,
                         Component.literal(gameProfile.getName()), null);
 
-                    ClientboundPlayerInfoUpdatePacket playerInfoUpdatePacket = new ClientboundPlayerInfoUpdatePacket(
+                    final ClientboundPlayerInfoUpdatePacket playerInfoUpdatePacket = new ClientboundPlayerInfoUpdatePacket(
                         EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER), entry);
 
-                    ClientboundAddEntityPacket addEntityPacket = new ClientboundAddEntityPacket(
+                    final ClientboundAddEntityPacket addEntityPacket = new ClientboundAddEntityPacket(
                         npcPlayer, 0, new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ()));
 
                     for (ServerPlayer p : server.getPlayerList().getPlayers()) {

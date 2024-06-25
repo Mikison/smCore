@@ -23,13 +23,11 @@ public class LuckPermsListener  {
     private final JavaPlugin plugin;
     private final TeamsManager prefixSuffixManager;
     private final VanishManager vanishManager;
-    private final LuckPerms luckPerms;
 
     public LuckPermsListener(JavaPlugin plugin, TeamsManager prefixSuffixManager, VanishManager vanishManager, LuckPerms luckPerms) {
         this.plugin = plugin;
         this.prefixSuffixManager = prefixSuffixManager;
         this.vanishManager = vanishManager;
-        this.luckPerms = luckPerms;
 
         EventBus eventBus = luckPerms.getEventBus();
 

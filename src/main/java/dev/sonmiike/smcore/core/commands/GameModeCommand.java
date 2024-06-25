@@ -13,6 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
 
+
 public class GameModeCommand {
 
     public static void register(JavaPlugin plugin, Commands commands) {

@@ -18,9 +18,11 @@ public class AsyncPlayerChatListener implements Listener {
     void onPlayerChat(AsyncChatEvent event) {
         event.renderer(ChatRenderer.viewerUnaware((player, sourceDisplayName, message) -> {
             final User user = LuckPermsProvider.get().getUserManager().getUser(player.getUniqueId());
+            if (user == null) return Component.empty();
+
             final String prefix = user.getCachedData().getMetaData().getPrefix();
 
-            return Component.empty() // TODO Check if the behaviour is the same when its .empty() as .text()
+            return Component.empty()
                 .append(MiniFormatter.deserialize("<gray>["))
                 .append(prefix == null ? MiniFormatter.deserialize("<gray>PLAYER") : MiniFormatter.deserialize(prefix))
                 .append(MiniFormatter.deserialize("<gray>] "))

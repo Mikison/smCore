@@ -2,12 +2,13 @@ package dev.sonmiike.smcore.core.managers;
 
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.animal.SnowGolem;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class NPCManager {
+public class NPCManager  {
 
     private final List<ServerPlayer> npcs;
 

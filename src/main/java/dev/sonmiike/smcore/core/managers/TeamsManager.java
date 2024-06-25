@@ -2,6 +2,7 @@ package dev.sonmiike.smcore.core.managers;
 
 import dev.sonmiike.smcore.core.util.MiniFormatter;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.user.User;
 import net.minecraft.world.entity.monster.warden.Warden;
@@ -22,11 +23,12 @@ public class TeamsManager {
 
         final Component suffix = isVanished ? MiniFormatter.deserialize(VANISHED_SUFFIX) : Component.empty();
         final Component prefix = getPrefixBasedOnPermission(player);
-
         team.prefix(prefix);
+
         team.suffix(suffix);
         team.addEntry(player.getName());
 
+        player.setGlowing(true);
         player.setScoreboard(scoreboard);
     }
 
