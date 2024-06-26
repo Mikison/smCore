@@ -75,9 +75,7 @@ public class RegionUtil {
                     if (tempNumber >= highestNumber) {
                         highestNumber = tempNumber;
                     }
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
-                }
+                } catch (NumberFormatException ignored) {}
             }
         }
 

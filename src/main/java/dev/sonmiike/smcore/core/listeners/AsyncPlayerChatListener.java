@@ -21,7 +21,6 @@ public class AsyncPlayerChatListener implements Listener {
             if (user == null) return Component.empty();
 
             final String prefix = user.getCachedData().getMetaData().getPrefix();
-
             return Component.empty()
                 .append(MiniFormatter.deserialize("<gray>["))
                 .append(prefix == null ? MiniFormatter.deserialize("<gray>PLAYER") : MiniFormatter.deserialize(prefix))
