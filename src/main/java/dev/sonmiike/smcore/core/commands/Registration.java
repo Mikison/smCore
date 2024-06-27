@@ -2,6 +2,7 @@ package dev.sonmiike.smcore.core.commands;
 
 import com.mojang.brigadier.Command;
 import dev.sonmiike.smcore.SmCore;
+import dev.sonmiike.smcore.core.managers.NPCManager;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
@@ -22,9 +23,12 @@ public final class Registration {
             final LifecycleEventManager<Plugin> lifecycleManager = plugin.getLifecycleManager();
             lifecycleManager.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
                 final Commands commands = event.registrar();
+                NPCManager npcManager = plugin.getNpcManager();
+
 
                 GameModeCommand.register(plugin, commands);
-                NPCCommand.register(plugin, commands);
+                NPCCommand.register(plugin, commands, npcManager);
+
             });
         }
 }

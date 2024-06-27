@@ -3,13 +3,22 @@ package dev.sonmiike.smcore.core.util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
-public class MiniFormatter {
+import static java.lang.StringTemplate.STR;
 
-    private static final MiniMessage mm = MiniMessage.miniMessage();
+
+public final class MiniFormatter {
+
+    private static final MiniMessage miniMessage = MiniMessage.miniMessage();
 
     private MiniFormatter() {}
 
-    public static Component deserialize(String string) {
-        return mm.deserialize(string);
+    public static final StringTemplate.Processor<Component, RuntimeException> MM = stringTemplate -> {
+        final String interpolated = STR.process(stringTemplate);
+        return toComponent(interpolated);
+    };
+
+    public static Component toComponent(String string) {
+        return miniMessage.deserialize(STR."<!i>\{string}");
     }
+
 }

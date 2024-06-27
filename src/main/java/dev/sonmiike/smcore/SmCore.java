@@ -8,6 +8,7 @@ import dev.sonmiike.smcore.core.managers.TeamsManager;
 import dev.sonmiike.smcore.core.managers.VanishManager;
 import lombok.Getter;
 import net.luckperms.api.LuckPerms;
+import net.minecraft.world.entity.npc.Npc;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -15,7 +16,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 @SuppressWarnings("UnstableApiUsage")
 public final class SmCore extends JavaPlugin {
 
-    @Getter
+
     private JavaPlugin plugin;
     private TeamsManager teamsManager;
     private VanishManager vanishManager;
@@ -33,21 +34,23 @@ public final class SmCore extends JavaPlugin {
         TaskManager taskManager = new TaskManager();
         teamsManager = new TeamsManager();
         vanishManager = new VanishManager(this, taskManager);
-        npcManager = new NPCManager();
+        npcManager = new NPCManager(this);
 
         registerListeners();
 
         Registration.registerViaOnEnable(this);
 
+
     }
 
     private void registerListeners() {
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(vanishManager, teamsManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerJoinListener(vanishManager, teamsManager, npcManager), this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(), this);
         getServer().getPluginManager().registerEvents(new AsyncPlayerChatListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerMoveListener(this), this);
+//        getServer().getPluginManager().registerEvents(new PlayerMoveListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), this);
         new LuckPermsListener(this, teamsManager, vanishManager, luckPerms);
     }
+
 
 }

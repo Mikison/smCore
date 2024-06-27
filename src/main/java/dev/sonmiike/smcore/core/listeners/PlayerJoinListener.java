@@ -1,7 +1,9 @@
 package dev.sonmiike.smcore.core.listeners;
 
+import dev.sonmiike.smcore.core.managers.NPCManager;
 import dev.sonmiike.smcore.core.managers.TeamsManager;
 import dev.sonmiike.smcore.core.managers.VanishManager;
+import dev.sonmiike.smcore.core.model.NPC;
 import dev.sonmiike.smcore.core.util.MiniFormatter;
 import dev.sonmiike.smcore.core.util.PlayerUtil;
 import org.bukkit.entity.Player;
@@ -9,28 +11,33 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+import static dev.sonmiike.smcore.core.util.MiniFormatter.MM;
+
 public class PlayerJoinListener implements Listener {
 
     private final VanishManager vanishManager;
 //    private final GodManager godManager;
     private final TeamsManager prefixManager;
+    private final NPCManager npcManager;
 
-    public PlayerJoinListener(VanishManager vanishManager, TeamsManager prefixManager) {
+    public PlayerJoinListener(VanishManager vanishManager, TeamsManager prefixManager, NPCManager npcManager) {
         this.vanishManager = vanishManager;
         this.prefixManager = prefixManager;
+        this.npcManager = npcManager;
     }
 
     @EventHandler
     void onPlayerJoin(PlayerJoinEvent event) {
         final Player player = event.getPlayer();
-        event.joinMessage(MiniFormatter.deserialize("<white>» ")
+        event.joinMessage(MM."<white>» "
             .append(PlayerUtil.getPlayerNameWithRank(player))
-            .append(MiniFormatter.deserialize("<gray> joined the server.")));
+            .append(MM."<gray> joined the server."));
 
         updatePlayerVisibility(player);
         handleGodManager(player);
         updatePrefixForPlayer(player);
 
+        npcManager.getAllNPCs().values().forEach(NPC::sendPacketsToPlayers);
 
     }
 

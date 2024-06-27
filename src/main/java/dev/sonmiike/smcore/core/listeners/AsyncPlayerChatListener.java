@@ -11,6 +11,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
+import static dev.sonmiike.smcore.core.util.MiniFormatter.MM;
+
 public class AsyncPlayerChatListener implements Listener {
 
 
@@ -22,18 +24,18 @@ public class AsyncPlayerChatListener implements Listener {
 
             final String prefix = user.getCachedData().getMetaData().getPrefix();
             return Component.empty()
-                .append(MiniFormatter.deserialize("<gray>["))
-                .append(prefix == null ? MiniFormatter.deserialize("<gray>PLAYER") : MiniFormatter.deserialize(prefix))
-                .append(MiniFormatter.deserialize("<gray>] "))
+                .append(MM."<gray>[")
+                .append(prefix == null ? MM."<gray>PLAYER" : MM."\{prefix}")
+                .append(MM."<gray>] ")
                 .append(sourceDisplayName)
-                .append(MiniFormatter.deserialize("<white>: "))
+                .append(MM."<white>: ")
                 .append(passMessage(player, message));
         }));
     }
 
     private Component passMessage(Player player, Component component) {
         return hasColorPermission(player) ?
-            MiniFormatter.deserialize(PlainTextComponentSerializer.plainText().serialize(component))
+            MM."\{PlainTextComponentSerializer.plainText().serialize(component)}"
             : component;
     }
 

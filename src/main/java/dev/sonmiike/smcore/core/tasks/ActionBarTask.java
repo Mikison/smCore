@@ -4,6 +4,8 @@ import dev.sonmiike.smcore.core.util.MiniFormatter;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import static dev.sonmiike.smcore.core.util.MiniFormatter.MM;
+
 public class ActionBarTask extends BukkitRunnable {
 
 
@@ -49,7 +51,7 @@ public class ActionBarTask extends BukkitRunnable {
             cancel();
         } else {
             player.sendActionBar(
-                MiniFormatter.deserialize("<white>» " + sb + " <white>«"));
+                MM."<white>» \{sb} <white>«");
         }
     }
 

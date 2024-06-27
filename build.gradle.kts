@@ -43,6 +43,18 @@ tasks.withType<JavaCompile>().configureEach {
         options.release.set(targetJavaVersion)
     }
 }
+// STRING TEMPLATES
+tasks.withType<JavaCompile>().configureEach {
+    options.compilerArgs.add("--enable-preview")
+}
+
+tasks.withType<Test>().configureEach {
+    jvmArgs("--enable-preview")
+}
+
+tasks.withType<JavaExec>().configureEach {
+    jvmArgs("--enable-preview")
+}
 
 tasks.processResources {
     val props = mapOf("version" to version)

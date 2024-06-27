@@ -2,6 +2,8 @@ package dev.sonmiike.smcore.core.commands;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import dev.sonmiike.smcore.core.commands.customArguments.GameModeArgument;
+import dev.sonmiike.smcore.core.commands.customArguments.GameModeType;
 import dev.sonmiike.smcore.core.util.MiniFormatter;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -12,6 +14,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
+
+import static dev.sonmiike.smcore.core.util.MiniFormatter.MM;
 
 
 public class GameModeCommand {
@@ -24,14 +28,16 @@ public class GameModeCommand {
         commands.register(plugin.getPluginMeta(), gamemodeBuilder.build(), "gamemode", List.of("gm"));
     }
 
-    private static RequiredArgumentBuilder<CommandSourceStack, GameMode> gamemodeArgument() {
-        return Commands.argument("gamemode", ArgumentTypes.gameMode())
+    private static RequiredArgumentBuilder<CommandSourceStack, GameModeType> gamemodeArgument() {
+        return Commands.argument("gamemode", new GameModeArgument())
             .executes((source) -> {
                 CommandSourceStack sourceStack = source.getSource();
-                GameMode gameMode = source.getArgument("gamemode", GameMode.class);
+                GameModeType gameModeString = source.getArgument("gamemode", GameModeType.class);
+                GameMode gameMode = GameMode.valueOf(gameModeString.name());
+
                 if (!(sourceStack.getSender() instanceof Player player)) return 0;
                 player.setGameMode(gameMode);
-                player.sendMessage(MiniFormatter.deserialize("Ustawiłem kurwa gamemode jak coś okok"));
+                player.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Your gamemode has been set to <blue>\{gameMode.name()}");
                 return 1;
             });
     }
@@ -40,10 +46,11 @@ public class GameModeCommand {
         return Commands.argument("player", ArgumentTypes.player())
             .executes((source) -> {
                 CommandSourceStack sourceStack = source.getSource();
-                GameMode gameMode = source.getArgument("gamemode", GameMode.class);
+                GameModeType gameModeString = source.getArgument("gamemode", GameModeType.class);
+                GameMode gameMode = GameMode.valueOf(gameModeString.name());
                 Player resolved = source.getArgument("player", PlayerSelectorArgumentResolver.class).resolve(sourceStack).get(0);
                 resolved.setGameMode(gameMode);
-                resolved.sendMessage(MiniFormatter.deserialize("Ustawiłem kurwa gamemode jak coś dla " + resolved.getName() + " okok"));
+                resolved.sendMessage(MM."Ustawiłem kurwa gamemode jak coś dla   \{resolved.getName()}  okok");
                 return 1;
             });
     }
