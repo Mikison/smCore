@@ -18,12 +18,14 @@ public class VanishManager {
 
     private final JavaPlugin instance;
     private final TaskManager taskManager;
+    private final TeamsManager teamsManager;
 
     private final Set<UUID> vanishedPlayers = new HashSet<>();
 
-    public VanishManager(JavaPlugin instance, TaskManager taskManager) {
+    public VanishManager(JavaPlugin instance, TaskManager taskManager, TeamsManager teamsManager) {
         this.instance = instance;
         this.taskManager = taskManager;
+        this.teamsManager = teamsManager;
     }
 
     public boolean isVanished(Player player) {
@@ -44,7 +46,8 @@ public class VanishManager {
             handleActionBarTask(player, false);
         }
         updatePlayerVisibility(player);
-        // TODO ScoreboardManager here <-
+        teamsManager.updateDisplayName(player, isVanished(player));
+
     }
 
     private void handleActionBarTask(Player player, boolean start) {

@@ -1,15 +1,20 @@
 package dev.sonmiike.smcore;
 
-import dev.sonmiike.smcore.core.commands.Registration;
+import dev.sonmiike.smcore.core.commands.GameModeCommand;
+import dev.sonmiike.smcore.core.commands.NPCCommand;
+import dev.sonmiike.smcore.core.commands.VanishCommand;
 import dev.sonmiike.smcore.core.listeners.*;
 import dev.sonmiike.smcore.core.managers.NPCManager;
 import dev.sonmiike.smcore.core.managers.TaskManager;
 import dev.sonmiike.smcore.core.managers.TeamsManager;
 import dev.sonmiike.smcore.core.managers.VanishManager;
+import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import lombok.Getter;
 import net.luckperms.api.LuckPerms;
-import net.minecraft.world.entity.npc.Npc;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -22,6 +27,7 @@ public final class SmCore extends JavaPlugin {
     private VanishManager vanishManager;
     @Getter
     private NPCManager npcManager;
+    private TaskManager taskManager;
     private LuckPerms luckPerms;
 
     @Override
@@ -31,14 +37,13 @@ public final class SmCore extends JavaPlugin {
             luckPerms = provider.getProvider(); }
 
         plugin = this;
-        TaskManager taskManager = new TaskManager();
+        taskManager = new TaskManager();
         teamsManager = new TeamsManager();
-        vanishManager = new VanishManager(this, taskManager);
+        vanishManager = new VanishManager(this, taskManager, teamsManager);
         npcManager = new NPCManager(this);
 
         registerListeners();
-
-        Registration.registerViaOnEnable(this);
+        registerViaOnEnable(this);
 
 
     }
@@ -50,6 +55,24 @@ public final class SmCore extends JavaPlugin {
 //        getServer().getPluginManager().registerEvents(new PlayerMoveListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), this);
         new LuckPermsListener(this, teamsManager, vanishManager, luckPerms);
+    }
+
+    public  void registerViaOnEnable(final SmCore plugin) {
+        registerViaLifecycleEvents(plugin);
+    }
+
+    private void registerViaLifecycleEvents(final SmCore plugin) {
+        final LifecycleEventManager<Plugin> lifecycleManager = plugin.getLifecycleManager();
+        lifecycleManager.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+            final Commands commands = event.registrar();
+            NPCManager npcManager = plugin.getNpcManager();
+
+
+            new GameModeCommand(plugin, commands);
+            new NPCCommand(plugin, commands, npcManager);
+            new VanishCommand(plugin, commands, this.vanishManager);
+
+        });
     }
 
 
