@@ -18,12 +18,10 @@ public class PlayerInteractEventListener implements Listener {
         if (event.getAction().isRightClick() && event.hasBlock()) {
             if (event.getPlayer().getInventory().getItemInMainHand().getType() == Material.WOODEN_AXE) {
                 region.setCorner1(event.getClickedBlock().getLocation());
-                event.getPlayer().sendMessage("Message1 \uE003");  // Unicode character U+E003
 
 
             } else if (event.getPlayer().getInventory().getItemInMainHand().getType() == Material.GOLDEN_AXE) {
                 region.setCorner2(event.getClickedBlock().getLocation());
-                event.getPlayer().sendMessage("Message1 \uE003");  // Unicode character U+E003
 
             }
         }

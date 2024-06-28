@@ -14,18 +14,22 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import static dev.sonmiike.smcore.core.util.MiniFormatter.MM;
+
 public class VanishManager {
 
     private final JavaPlugin instance;
     private final TaskManager taskManager;
     private final TeamsManager teamsManager;
+    private final GodManager godManager;
 
     private final Set<UUID> vanishedPlayers = new HashSet<>();
 
-    public VanishManager(JavaPlugin instance, TaskManager taskManager, TeamsManager teamsManager) {
+    public VanishManager(JavaPlugin instance, TaskManager taskManager, TeamsManager teamsManager, GodManager godManager) {
         this.instance = instance;
         this.taskManager = taskManager;
         this.teamsManager = teamsManager;
+        this.godManager = godManager;
     }
 
     public boolean isVanished(Player player) {
@@ -39,40 +43,38 @@ public class VanishManager {
     private void setVanished(Player player, boolean vanished) {
         if (vanished) {
             vanishedPlayers.add(player.getUniqueId());
-            handleActionBarTask(player, true);
+            handleActionBarTask(player);
             applyVanishState(player);
+            player.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>You are now <blue>VANISHED");
         } else {
             vanishedPlayers.remove(player.getUniqueId());
-            handleActionBarTask(player, false);
+            handleActionBarTask(player);
+            player.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>You are now <blue>VISIBLE");
         }
         updatePlayerVisibility(player);
         teamsManager.updateDisplayName(player, isVanished(player));
-
     }
 
-    private void handleActionBarTask(Player player, boolean start) {
+    private void handleActionBarTask(Player player) {
         ActionBarTask task = taskManager.getTask(player.getUniqueId());
-        if (start) {
+        boolean isVanished = isVanished(player);
+        boolean isGod = godManager.isGod(player);
+
+        if (isVanished || isGod) {
             if (task == null) {
                 task = new ActionBarTask(player);
                 taskManager.addTask(player.getUniqueId(), task);
                 task.runTaskTimer(instance, 0L, 40L);
             }
-            task.setVanished(true);
-            return;
+            task.setVanished(isVanished);
+            task.setGodMode(isGod);
+        } else if (task != null) {
+            taskManager.removeTask(player.getUniqueId());
+            task.cancel();
         }
-        if (task != null) {
-            task.setVanished(false);
-            if (!task.isVanished() && !task.isGodMode()) {
-                taskManager.removeTask(player.getUniqueId());
-                task.cancel();
-            }
-        }
-
     }
 
     private void applyVanishState(Player player) {
-//        player.sendMessage(mm.deserialize("<white>» <gray>You are now <blue>VANISHED")); // TODO Think about where to send messages manager or command
         player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
         player.setFoodLevel(20);
         setNearbyEntitiesTargetNull(player);
@@ -100,11 +102,12 @@ public class VanishManager {
         if (!player.hasPermission("smcore.vanish") && isVanished(player)) {
             setVanished(player, false);
         }
-        if (isVanished(player)) {
-            handleActionBarTask(player, true);
+
+        if (isVanished(player) || godManager.isGod(player)) {
+            handleActionBarTask(player);
             updatePlayerVisibility(player);
         } else if (player.hasPermission("smcore.vanish")) {
-//            player.sendMessage(MiniFormatter.deserialize("<white>» <gray>Joined the game in <blue>VANISHED<gray> mode")); // TODO think about it
+            handleActionBarTask(player);
             setVanished(player, true);
         }
     }
@@ -114,13 +117,11 @@ public class VanishManager {
     }
 
     private void setNearbyEntitiesTargetNull(Player player) {
-        final List<Entity> nearbyEntities = player.getNearbyEntities(30  , 30, 30);
+        final List<Entity> nearbyEntities = player.getNearbyEntities(30, 30, 30);
         for (Entity entities : nearbyEntities) {
             if (entities instanceof Creature creature) {
                 creature.setTarget(null);
             }
         }
     }
-
-
 }

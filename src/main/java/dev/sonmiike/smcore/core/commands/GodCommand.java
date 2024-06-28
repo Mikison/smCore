@@ -2,7 +2,7 @@ package dev.sonmiike.smcore.core.commands;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import dev.sonmiike.smcore.core.managers.VanishManager;
+import dev.sonmiike.smcore.core.managers.GodManager;
 import dev.sonmiike.smcore.core.util.PlayerUtil;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -14,17 +14,17 @@ import java.util.List;
 
 import static dev.sonmiike.smcore.core.util.MiniFormatter.MM;
 
-public class VanishCommand {
+public class GodCommand {
 
-    private final VanishManager vanishManager;
+    private final GodManager godManager;
 
-    public VanishCommand(JavaPlugin plugin, Commands commands,VanishManager vanishManager) {
-        this.vanishManager = vanishManager;
-        register(plugin, commands);
+    public GodCommand(JavaPlugin plugin, Commands commands, GodManager godManager) {
+        this.godManager = godManager;
+        register(plugin,commands);
     }
 
-    public void register(JavaPlugin plugin, Commands commands) {
-        final LiteralArgumentBuilder<CommandSourceStack> vanishBuilder = Commands.literal("vanish")
+    private void register(JavaPlugin plugin, Commands commands) {
+        final LiteralArgumentBuilder<CommandSourceStack> vanishBuilder = Commands.literal("god")
             .executes((source) -> {
                 CommandSourceStack sourceStack = source.getSource();
                 CommandSender sender = sourceStack.getSender();
@@ -32,16 +32,11 @@ public class VanishCommand {
                     sender.sendMessage(MM."<bold><dark_gray>[<red>!<dark_gray>]</bold> <gray>You must be a player to use this command");
                     return 0;
                 }
-                if (!PlayerUtil.playerHasPermission(player, "smcore.vanish")) return 0;
-                vanishManager.toggleVanish(player);
+                if (!PlayerUtil.playerHasPermission(player, "smcore.god")) return 0;
+                godManager.toggleGod(player);
                 return Command.SINGLE_SUCCESS;
             });
 
-        commands.register(plugin.getPluginMeta(), vanishBuilder.build(), "vanish", List.of("v"));
+        commands.register(plugin.getPluginMeta(), vanishBuilder.build(), "god", List.of());
     }
-
-
-
-
-
 }

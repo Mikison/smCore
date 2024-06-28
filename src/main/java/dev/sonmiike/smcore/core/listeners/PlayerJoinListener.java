@@ -30,7 +30,7 @@ public class PlayerJoinListener implements Listener {
     void onPlayerJoin(PlayerJoinEvent event) {
         final Player player = event.getPlayer();
         event.joinMessage(MM."<white>» "
-            .append(PlayerUtil.getPlayerNameWithRank(player))
+            .append(MM."\{PlayerUtil.getPlayerNameWithRank(player)}")
             .append(MM."<gray> joined the server."));
 
         updatePlayerVisibility(player);
@@ -42,6 +42,9 @@ public class PlayerJoinListener implements Listener {
     }
 
     private void updatePlayerVisibility(Player player) {
+        if (vanishManager.isVanished(player)) {
+            player.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Joined <blue>VANISHED<gray> to the server");
+        }
         vanishManager.updateVisibilityForAllPlayers();
         vanishManager.handlePlayerJoin(player);
     }

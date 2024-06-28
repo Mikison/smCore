@@ -1,13 +1,8 @@
 package dev.sonmiike.smcore;
 
-import dev.sonmiike.smcore.core.commands.GameModeCommand;
-import dev.sonmiike.smcore.core.commands.NPCCommand;
-import dev.sonmiike.smcore.core.commands.VanishCommand;
+import dev.sonmiike.smcore.core.commands.*;
 import dev.sonmiike.smcore.core.listeners.*;
-import dev.sonmiike.smcore.core.managers.NPCManager;
-import dev.sonmiike.smcore.core.managers.TaskManager;
-import dev.sonmiike.smcore.core.managers.TeamsManager;
-import dev.sonmiike.smcore.core.managers.VanishManager;
+import dev.sonmiike.smcore.core.managers.*;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
@@ -25,6 +20,7 @@ public final class SmCore extends JavaPlugin {
     private JavaPlugin plugin;
     private TeamsManager teamsManager;
     private VanishManager vanishManager;
+    private GodManager godManager;
     @Getter
     private NPCManager npcManager;
     private TaskManager taskManager;
@@ -34,12 +30,15 @@ public final class SmCore extends JavaPlugin {
     public void onEnable() {
         RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
         if (provider != null) {
-            luckPerms = provider.getProvider(); }
+            luckPerms = provider.getProvider();
+        }
 
         plugin = this;
+
         taskManager = new TaskManager();
         teamsManager = new TeamsManager();
-        vanishManager = new VanishManager(this, taskManager, teamsManager);
+        godManager = new GodManager(taskManager, this);
+        vanishManager = new VanishManager(this, taskManager, teamsManager, godManager);
         npcManager = new NPCManager(this);
 
         registerListeners();
@@ -50,14 +49,15 @@ public final class SmCore extends JavaPlugin {
 
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(vanishManager, teamsManager, npcManager), this);
-        getServer().getPluginManager().registerEvents(new PlayerQuitListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerQuitListener(vanishManager), this);
         getServer().getPluginManager().registerEvents(new AsyncPlayerChatListener(), this);
-//        getServer().getPluginManager().registerEvents(new PlayerMoveListener(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerMoveListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), this);
+        getServer().getPluginManager().registerEvents(new GodModeListener(godManager, vanishManager), this);
         new LuckPermsListener(this, teamsManager, vanishManager, luckPerms);
     }
 
-    public  void registerViaOnEnable(final SmCore plugin) {
+    public void registerViaOnEnable(final SmCore plugin) {
         registerViaLifecycleEvents(plugin);
     }
 
@@ -70,8 +70,10 @@ public final class SmCore extends JavaPlugin {
 
             new GameModeCommand(plugin, commands);
             new NPCCommand(plugin, commands, npcManager);
-            new VanishCommand(plugin, commands, this.vanishManager);
-
+            new VanishCommand(plugin, commands, vanishManager);
+            new SpeedCommand(plugin, commands);
+            new ClearCommand(plugin, commands);
+            new GodCommand(plugin, commands, godManager);
         });
     }
 

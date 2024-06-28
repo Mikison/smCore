@@ -3,9 +3,9 @@ package dev.sonmiike.smcore.core.commands;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
 import dev.sonmiike.smcore.core.commands.customArguments.GameModeArgument;
 import dev.sonmiike.smcore.core.commands.customArguments.GameModeType;
-import dev.sonmiike.smcore.core.util.MiniFormatter;
 import dev.sonmiike.smcore.core.util.PlayerUtil;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -20,7 +20,6 @@ import java.util.List;
 
 import static dev.sonmiike.smcore.core.util.MiniFormatter.MM;
 
-
 public class GameModeCommand {
 
     public GameModeCommand(JavaPlugin plugin, Commands commands) {
@@ -29,43 +28,48 @@ public class GameModeCommand {
 
     private void register(JavaPlugin plugin, Commands commands) {
         final LiteralArgumentBuilder<CommandSourceStack> gamemodeBuilder = Commands.literal("gamemode")
-            .then(gamemodeArgument()
-                .then(playerArgument()));
+            .then(createGamemodeArgument()
+                .then(createPlayerArgument()));
 
         commands.register(plugin.getPluginMeta(), gamemodeBuilder.build(), "gamemode", List.of("gm"));
     }
 
-    private RequiredArgumentBuilder<CommandSourceStack, GameModeType> gamemodeArgument() {
+    private RequiredArgumentBuilder<CommandSourceStack, GameModeType> createGamemodeArgument() {
         return Commands.argument("gamemode", new GameModeArgument())
-            .executes((source) -> {
-                CommandSourceStack sourceStack = source.getSource();
-                GameModeType gameModeString = source.getArgument("gamemode", GameModeType.class);
-                GameMode gameMode = GameMode.valueOf(gameModeString.name());
+            .executes(context -> executeGamemodeCommand(context, null));
+    }
 
-                if (!(sourceStack.getSender() instanceof Player player)) {
-                    sourceStack.getSender().sendMessage(MM."<bold><dark_gray>[<red>!<dark_gray>]</bold> <gray>You must be a player to use this command");
-                    return 0;
-                }
-
-                player.setGameMode(gameMode);
-                player.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Your gamemode has been set to <blue>\{gameMode.name()}");
-                return Command.SINGLE_SUCCESS;
+    private RequiredArgumentBuilder<CommandSourceStack, PlayerSelectorArgumentResolver> createPlayerArgument() {
+        return Commands.argument("player", ArgumentTypes.player())
+            .executes(context -> {
+                PlayerSelectorArgumentResolver resolver = context.getArgument("player", PlayerSelectorArgumentResolver.class);
+                return executeGamemodeCommand(context, resolver.resolve(context.getSource()).getFirst());
             });
     }
 
-    private RequiredArgumentBuilder<CommandSourceStack, PlayerSelectorArgumentResolver> playerArgument() {
-        return Commands.argument("player", ArgumentTypes.player())
-            .executes((source) -> {
-                CommandSourceStack sourceStack = source.getSource();
-                CommandSender commandSender = sourceStack.getSender();
-                GameModeType gameModeString = source.getArgument("gamemode", GameModeType.class);
-                GameMode gameMode = GameMode.valueOf(gameModeString.name());
-                Player resolved = source.getArgument("player", PlayerSelectorArgumentResolver.class).resolve(sourceStack).get(0);
-                resolved.setGameMode(gameMode);
-                resolved.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Your gamemode has been set to <blue>\{gameMode.name()} <gray>by \{commandSender instanceof Player player ? PlayerUtil.getPlayerNameWithRank(player) : "<bold><red>CONSOLE"}");
-                commandSender.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Set <blue>\{PlayerUtil.getPlayerNameWithRank(resolved)}'s <gray>gamemode to <blue>\{gameMode.name()}");
+    private int executeGamemodeCommand(CommandContext<CommandSourceStack> context, Player target) {
+        final CommandSourceStack sourceStack = context.getSource();
+        final CommandSender sender = sourceStack.getSender();
+        final GameModeType gameModeType = context.getArgument("gamemode", GameModeType.class);
+        final GameMode gameMode = GameMode.valueOf(gameModeType.name());
 
-                return Command.SINGLE_SUCCESS;
-            });
+        if (target == null) {
+            if (!(sender instanceof Player player)) {
+                sender.sendMessage(MM."<bold><dark_gray>[<red>!<dark_gray>]</bold> <gray>You must be a player to use this command");
+                return 0;
+            }
+            if (!PlayerUtil.playerHasPermission(player, "smcore.gamemode")) return 0;
+
+            player.setGameMode(gameMode);
+            player.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Your gamemode has been set to <blue>\{gameMode.name()}");
+            return 0;
+        }
+        if (!PlayerUtil.playerHasPermission(sender, "smcore.gamemode.others")) return 0;
+
+        target.setGameMode(gameMode);
+        target.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Your gamemode has been set to <blue>\{gameMode.name()} <gray>by \{(sender instanceof Player ? PlayerUtil.getPlayerNameWithRank((Player) sender) : "<bold><red>CONSOLE")}");
+        sender.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Set \{PlayerUtil.getPlayerNameWithRank(target)} <gray>gamemode to <blue>\{gameMode.name()}");
+
+        return Command.SINGLE_SUCCESS;
     }
 }
