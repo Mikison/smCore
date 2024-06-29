@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import static dev.sonmiike.smcore.core.util.MiniFormatter.MM;
+
 public class GodManager {
 
     private final TaskManager taskManager;
@@ -37,9 +39,12 @@ public class GodManager {
             godPlayers.add(player.getUniqueId());
             handleActionBarTask(player);
             applyGodState(player);
+            player.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>God mode <blue>ENABLED");
+
         } else {
             godPlayers.remove(player.getUniqueId());
             handleActionBarTask(player);
+            player.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>God mode <blue>DISABLED");
         }
     }
 

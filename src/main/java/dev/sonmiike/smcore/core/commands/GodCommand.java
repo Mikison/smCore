@@ -26,8 +26,8 @@ public class GodCommand {
     private void register(JavaPlugin plugin, Commands commands) {
         final LiteralArgumentBuilder<CommandSourceStack> vanishBuilder = Commands.literal("god")
             .executes((source) -> {
-                CommandSourceStack sourceStack = source.getSource();
-                CommandSender sender = sourceStack.getSender();
+                final CommandSourceStack sourceStack = source.getSource();
+                final CommandSender sender = sourceStack.getSender();
                 if (!(sender instanceof Player player)) {
                     sender.sendMessage(MM."<bold><dark_gray>[<red>!<dark_gray>]</bold> <gray>You must be a player to use this command");
                     return 0;

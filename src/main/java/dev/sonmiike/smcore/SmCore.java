@@ -74,8 +74,8 @@ public final class SmCore extends JavaPlugin {
             new SpeedCommand(plugin, commands);
             new ClearCommand(plugin, commands);
             new GodCommand(plugin, commands, godManager);
+            new FlyCommand(plugin, commands);
+            new TeleportCommand(plugin, commands);
         });
     }
-
-
 }

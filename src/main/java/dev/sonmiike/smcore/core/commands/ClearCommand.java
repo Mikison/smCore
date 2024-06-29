@@ -28,7 +28,7 @@ public class ClearCommand {
             .then(
                 Commands.argument("player", ArgumentTypes.player())
                     .executes(ctx -> {
-                        Player target = ctx.getArgument("player", PlayerSelectorArgumentResolver.class).resolve(ctx.getSource()).getFirst();
+                        final Player target = ctx.getArgument("player", PlayerSelectorArgumentResolver.class).resolve(ctx.getSource()).getFirst();
                         return clearInventory(ctx, target);
                     })
             );
@@ -45,7 +45,7 @@ public class ClearCommand {
         }
 
         if (target == null) {
-            Player player = (Player) sender;
+            final Player player = (Player) sender;
             if (!PlayerUtil.playerHasPermission(player, "smcore.clear")) return 0;
             player.getInventory().clear();
             player.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Your inventory has been cleared");
