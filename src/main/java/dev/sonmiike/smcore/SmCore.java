@@ -76,7 +76,7 @@ public final class SmCore extends JavaPlugin {
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, vanishManager, godManager, teamsManager, npcManager), this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(this, vanishManager, godManager), this);
-        getServer().getPluginManager().registerEvents(new AsyncPlayerChatListener(), this);
+        getServer().getPluginManager().registerEvents(new AsyncPlayerChatListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerMoveListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), this);
         getServer().getPluginManager().registerEvents(new GodModeListener(godManager, vanishManager), this);

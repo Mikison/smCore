@@ -167,6 +167,35 @@ public class DatabaseManager {
     }
 
 
+    public boolean isPlayerMuted(UUID uuid) {
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM mutes WHERE uuid = ? AND is_active = TRUE AND (expires_at IS NULL OR expires_at > ?)");
+            statement.setString(1, uuid.toString());
+            statement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+            ResultSet rs = statement.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean isPlayerBanned(UUID uuid) {
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM bans WHERE uuid = ? AND is_active = TRUE AND (expires_at IS NULL OR expires_at > ?)");
+            statement.setString(1, uuid.toString());
+            statement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+            ResultSet rs = statement.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
     private void createTables() {
         String playerSql = "CREATE TABLE IF NOT EXISTS players ("
             + "uuid VARCHAR(50) NOT NULL PRIMARY KEY,"
