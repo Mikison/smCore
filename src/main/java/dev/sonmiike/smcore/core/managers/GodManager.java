@@ -37,15 +37,13 @@ public class GodManager {
     private void setGod(Player player, boolean god) {
         if (god) {
             godPlayers.add(player.getUniqueId());
-            handleActionBarTask(player);
             applyGodState(player);
             player.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>God mode <blue>ENABLED");
-
         } else {
             godPlayers.remove(player.getUniqueId());
-            handleActionBarTask(player);
             player.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>God mode <blue>DISABLED");
         }
+        handleActionBarTask(player);
     }
 
     private void applyGodState(Player player) {
@@ -57,19 +55,19 @@ public class GodManager {
     private void handleActionBarTask(Player player) {
         ActionBarTask task = taskManager.getTask(player.getUniqueId());
         boolean isGod = isGod(player);
-        boolean isVanished = task != null && task.isVanished();
 
-        if (isGod || isVanished) {
+        if (isGod) {
             if (task == null) {
                 task = new ActionBarTask(player);
                 taskManager.addTask(player.getUniqueId(), task);
                 task.runTaskTimer(plugin, 0L, 40L);
             }
             task.setGodMode(isGod);
-            task.setVanished(isVanished);
-        } else if (task != null) {
+        } else if (task != null && !task.isVanished()) {
             taskManager.removeTask(player.getUniqueId());
             task.cancel();
+        } else {
+            task.setGodMode(isGod);
         }
     }
 
@@ -80,5 +78,33 @@ public class GodManager {
                 creature.setTarget(null);
             }
         }
+    }
+
+    public void handlePlayerJoin(Player player) {
+        if (!player.hasPermission("smcore.god") && isGod(player)) {
+            setGod(player, false);
+        }
+
+        if (isGod(player)) {
+            handleActionBarTask(player);
+        }
+    }
+
+//    public void handlePlayerJoin(Player player) {
+//        if (!player.hasPermission("smcore.god") && isGod(player)) {
+//            setGod(player, false);
+//        }
+//
+//        if (isGod(player)) {
+//            handleActionBarTask(player);
+//        } else if (player.hasPermission("smcore.vanish")) {
+//            handleActionBarTask(player);
+//            setGod(player, true);
+//        }
+//    }
+
+    public void handlePlayerQuit(Player player) {
+        if (taskManager.getTask(player.getUniqueId()) != null)
+            taskManager.removeTask(player.getUniqueId());
     }
 }

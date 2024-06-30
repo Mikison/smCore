@@ -13,11 +13,17 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
 @SuppressWarnings("UnstableApiUsage")
 public final class SmCore extends JavaPlugin {
 
-
+    //instance
     private JavaPlugin plugin;
+
+    // Managers
     private TeamsManager teamsManager;
     private VanishManager vanishManager;
     private GodManager godManager;
@@ -26,15 +32,22 @@ public final class SmCore extends JavaPlugin {
     private TaskManager taskManager;
     private LuckPerms luckPerms;
 
+
+    // Database
+    @Getter
+    private DatabaseManager databaseManager;
+
+
     @Override
     public void onEnable() {
+        saveDefaultConfig();
+
+        connectToDatabase();
         RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
         if (provider != null) {
             luckPerms = provider.getProvider();
         }
-
         plugin = this;
-
         taskManager = new TaskManager();
         teamsManager = new TeamsManager();
         godManager = new GodManager(taskManager, this);
@@ -43,13 +56,26 @@ public final class SmCore extends JavaPlugin {
 
         registerListeners();
         registerViaOnEnable(this);
+    }
 
+    @Override
+    public void onDisable() {
+    }
+
+    public void connectToDatabase() {
+        String host = getConfig().getString("database.host");
+        int port = getConfig().getInt("database.port");
+        String database = getConfig().getString("database.database");
+        String username = getConfig().getString("database.username");
+        String password = getConfig().getString("database.password");
+        databaseManager = new DatabaseManager(host, port, database, username, password);
 
     }
 
+
     private void registerListeners() {
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(vanishManager, teamsManager, npcManager), this);
-        getServer().getPluginManager().registerEvents(new PlayerQuitListener(vanishManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, vanishManager, godManager, teamsManager, npcManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerQuitListener(this, vanishManager, godManager), this);
         getServer().getPluginManager().registerEvents(new AsyncPlayerChatListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerMoveListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), this);
@@ -76,6 +102,9 @@ public final class SmCore extends JavaPlugin {
             new GodCommand(plugin, commands, godManager);
             new FlyCommand(plugin, commands);
             new TeleportCommand(plugin, commands);
+            new KickCommand(plugin, commands);
+            new MuteCommand(plugin, commands);
         });
     }
+
 }

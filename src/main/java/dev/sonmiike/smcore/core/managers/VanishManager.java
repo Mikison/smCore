@@ -43,14 +43,13 @@ public class VanishManager {
     private void setVanished(Player player, boolean vanished) {
         if (vanished) {
             vanishedPlayers.add(player.getUniqueId());
-            handleActionBarTask(player);
             applyVanishState(player);
             player.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>You are now <blue>VANISHED");
         } else {
             vanishedPlayers.remove(player.getUniqueId());
-            handleActionBarTask(player);
             player.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>You are now <blue>VISIBLE");
         }
+        handleActionBarTask(player);
         updatePlayerVisibility(player);
         teamsManager.updateDisplayName(player, isVanished(player));
     }
@@ -58,19 +57,19 @@ public class VanishManager {
     private void handleActionBarTask(Player player) {
         ActionBarTask task = taskManager.getTask(player.getUniqueId());
         boolean isVanished = isVanished(player);
-        boolean isGod = godManager.isGod(player);
 
-        if (isVanished || isGod) {
+        if (isVanished) {
             if (task == null) {
                 task = new ActionBarTask(player);
                 taskManager.addTask(player.getUniqueId(), task);
                 task.runTaskTimer(instance, 0L, 40L);
             }
-            task.setVanished(isVanished);
-            task.setGodMode(isGod);
-        } else if (task != null) {
+            task.setVanished(true);
+        } else if (task != null && !task.isGodMode()) {
             taskManager.removeTask(player.getUniqueId());
             task.cancel();
+        } else {
+            task.setVanished(false);
         }
     }
 
@@ -103,17 +102,28 @@ public class VanishManager {
             setVanished(player, false);
         }
 
-        if (isVanished(player) || godManager.isGod(player)) {
+        if (isVanished(player)) {
             handleActionBarTask(player);
             updatePlayerVisibility(player);
-        } else if (player.hasPermission("smcore.vanish")) {
-            handleActionBarTask(player);
-            setVanished(player, true);
         }
     }
+//    public void handlePlayerJoin(Player player) {
+//        if (!player.hasPermission("smcore.vanish") && isVanished(player)) {
+//            setVanished(player, false);
+//        }
+//
+//        if (isVanished(player) || godManager.isGod(player)) {
+//            handleActionBarTask(player);
+//            updatePlayerVisibility(player);
+//        } else if (player.hasPermission("smcore.vanish")) {
+//            handleActionBarTask(player);
+//            setVanished(player, true);
+//        }
+//    }
 
     public void handlePlayerQuit(Player player) {
-        taskManager.removeTask(player.getUniqueId());
+        if (taskManager.getTask(player.getUniqueId()) != null)
+            taskManager.removeTask(player.getUniqueId());
     }
 
     private void setNearbyEntitiesTargetNull(Player player) {

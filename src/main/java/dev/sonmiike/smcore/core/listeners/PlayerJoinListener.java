@@ -1,27 +1,37 @@
 package dev.sonmiike.smcore.core.listeners;
 
+import dev.sonmiike.smcore.SmCore;
+import dev.sonmiike.smcore.core.managers.GodManager;
 import dev.sonmiike.smcore.core.managers.NPCManager;
 import dev.sonmiike.smcore.core.managers.TeamsManager;
 import dev.sonmiike.smcore.core.managers.VanishManager;
 import dev.sonmiike.smcore.core.model.NPC;
-import dev.sonmiike.smcore.core.util.MiniFormatter;
 import dev.sonmiike.smcore.core.util.PlayerUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+
 import static dev.sonmiike.smcore.core.util.MiniFormatter.MM;
+
 
 public class PlayerJoinListener implements Listener {
 
+    private final SmCore plugin;
     private final VanishManager vanishManager;
-//    private final GodManager godManager;
+    private final GodManager godManager;
     private final TeamsManager prefixManager;
     private final NPCManager npcManager;
 
-    public PlayerJoinListener(VanishManager vanishManager, TeamsManager prefixManager, NPCManager npcManager) {
+
+    public PlayerJoinListener(SmCore plugin, VanishManager vanishManager, GodManager godManager, TeamsManager prefixManager, NPCManager npcManager) {
+        this.plugin = plugin;
         this.vanishManager = vanishManager;
+        this.godManager = godManager;
         this.prefixManager = prefixManager;
         this.npcManager = npcManager;
     }
@@ -33,25 +43,28 @@ public class PlayerJoinListener implements Listener {
             .append(MM."\{PlayerUtil.getPlayerNameWithRank(player)}")
             .append(MM."<gray> joined the server."));
 
-        updatePlayerVisibility(player);
-        handleGodManager(player);
+        if (!plugin.getDatabaseManager().playerExists(player.getUniqueId())) {
+            plugin.getDatabaseManager().addPlayer(player.getUniqueId(), player.getName(), player.getAddress().getAddress().getHostAddress());
+        }
+
+        handlePlayerVisibilityAndGodState(player);
         updatePrefixForPlayer(player);
 
         npcManager.getAllNPCs().values().forEach(NPC::sendPacketsToPlayers);
 
     }
 
-    private void updatePlayerVisibility(Player player) {
-        if (vanishManager.isVanished(player)) {
-            player.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Joined <blue>VANISHED<gray> to the server");
-        }
-        vanishManager.updateVisibilityForAllPlayers();
-        vanishManager.handlePlayerJoin(player);
-    }
 
-    private void handleGodManager(Player player) {}
+    private void handlePlayerVisibilityAndGodState(Player player) {
+        vanishManager.handlePlayerJoin(player);
+        godManager.handlePlayerJoin(player);
+        vanishManager.updateVisibilityForAllPlayers();
+    }
 
     private void updatePrefixForPlayer(Player player) {
         prefixManager.updateDisplayName(player, vanishManager.isVanished(player));
     }
 }
+
+
+

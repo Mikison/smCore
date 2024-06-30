@@ -1,6 +1,8 @@
 plugins {
-    id("java")
     id("io.papermc.paperweight.userdev") version "1.7.1"
+    id("io.github.goooler.shadow") version "8.1.7"
+    id("java")
+
 }
 
 group = "dev.sonmiike"
@@ -19,6 +21,8 @@ repositories {
 }
 
 dependencies {
+    implementation("org.postgresql:postgresql:42.7.3")
+    implementation("com.zaxxer:HikariCP:4.0.3")
     compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
     compileOnly("net.luckperms:api:5.4")
     compileOnly ("org.projectlombok:lombok:1.18.32")
@@ -68,7 +72,7 @@ tasks.processResources {
 tasks.register<Copy>("copyJarToPlugins") {
     dependsOn(tasks.build)
     from("build/libs")
-    include("*-dev.jar")
+    include("*-dev*.jar")
     into("C:/Users/mati1/Desktop/SERWER/plugins")
     doNotTrackState("md5")
 }
@@ -76,3 +80,10 @@ tasks.register<Copy>("copyJarToPlugins") {
 tasks.build {
     finalizedBy(tasks.named("copyJarToPlugins"))
 }
+
+tasks.shadowJar {
+    relocate("com.zaxxer.hikari", "dev.sonmiike.smcore.hikari")
+    relocate("org.postgresql", "dev.sonmiike.smcore.postgresql")
+    configurations = listOf(project.configurations.runtimeClasspath.get())
+}
+

@@ -1,12 +1,14 @@
 package dev.sonmiike.smcore.core.commands;
 
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.sonmiike.smcore.SmCore;
 import dev.sonmiike.smcore.core.managers.NPCManager;
 import dev.sonmiike.smcore.core.util.PlayerUtil;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import net.kyori.adventure.text.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -39,15 +41,19 @@ public class NPCCommand {
 
                 })
             .then(
-                Commands.literal("skin")
-                    .executes(ctx -> {
-                        CommandSourceStack sourceStack = ctx.getSource();
-                        if (sourceStack.getSender() instanceof Player player) {
-                            player.sendMessage(MM."<yellow>Pitch: \{player.getLocation().getPitch()}");
-                            player.sendMessage(MM."<yellow>Yaw: \{player.getLocation().getYaw()}");
-                        }
-                        return Command.SINGLE_SUCCESS;
-                    }));
+                        Commands.argument("inventoryName", StringArgumentType.string())
+                            .executes((ctx -> {
+                                CommandSourceStack sourceStack = ctx.getSource();
+                                if (sourceStack.getSender() instanceof Player player) {
+                                    String inventoryName = ctx.getArgument("inventoryName", String.class);
+                                    player.openInventory(Bukkit.createInventory(player, 9 * 4, MM."\{inventoryName}"));
+                                    player.sendMessage(MM."<yellow>Pitch: \{player.getLocation().getPitch()}");
+                                    player.sendMessage(MM."<yellow>Yaw: \{player.getLocation().getYaw()}");
+                                }
+                                return Command.SINGLE_SUCCESS;
+                            }))
+
+                    );
 
         commands.register(plugin.getPluginMeta(), npc.build(), "NPC", List.of());
     }
