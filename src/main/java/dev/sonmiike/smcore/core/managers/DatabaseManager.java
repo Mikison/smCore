@@ -2,10 +2,13 @@ package dev.sonmiike.smcore.core.managers;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import dev.sonmiike.smcore.core.model.MuteInfo;
 
 import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -117,6 +120,18 @@ public class DatabaseManager {
         }
     }
 
+    public void updateMuteStatus(UUID uuid, boolean isActive) {
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(
+                "UPDATE mutes SET is_active = ? WHERE uuid = ?");
+            statement.setBoolean(1, isActive);
+            statement.setString(2, uuid.toString());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public int addPlayer(UUID uuid, String username, String ipAddress) {
         try (Connection connection = dataSource.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(
@@ -195,6 +210,29 @@ public class DatabaseManager {
         return false;
     }
 
+    public List<MuteInfo> loadAllMutedPlayers() {
+        List<MuteInfo> mutedPlayers = new ArrayList<>();
+        String sql = "SELECT uuid, reason, muted_by, mute_date, expires_at FROM mutes WHERE is_active = TRUE";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet rs = statement.executeQuery()) {
+
+            while (rs.next()) {
+                UUID uuid = UUID.fromString(rs.getString("uuid"));
+                String reason = rs.getString("reason");
+                String mutedBy = rs.getString("muted_by");
+                LocalDateTime muteDate = rs.getTimestamp("mute_date").toLocalDateTime();
+                LocalDateTime expiresAt = rs.getTimestamp("expires_at") != null ? rs.getTimestamp("expires_at").toLocalDateTime() : null;
+
+                mutedPlayers.add(new MuteInfo(uuid, reason, mutedBy, muteDate, expiresAt));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return mutedPlayers;
+    }
+
 
     private void createTables() {
         String playerSql = "CREATE TABLE IF NOT EXISTS players ("
@@ -221,7 +259,7 @@ public class DatabaseManager {
         String mutesSql = "CREATE TABLE IF NOT EXISTS mutes (" +
             "id SERIAL PRIMARY KEY," +
             "uuid VARCHAR(50) NOT NULL," +
-            "reason TEXT NOT NULL," +
+            "reason TEXT," +
             "muted_by VARCHAR(16) NOT NULL," +
             "mute_date TIMESTAMP NOT NULL," +
             "expires_at TIMESTAMP," +

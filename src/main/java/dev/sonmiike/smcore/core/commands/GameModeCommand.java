@@ -67,7 +67,7 @@ public class GameModeCommand {
         if (!PlayerUtil.playerHasPermission(sender, "smcore.gamemode.others")) return 0;
 
         target.setGameMode(gameMode);
-        target.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Your gamemode has been set to <blue>\{gameMode.name()} <gray>by \{(sender instanceof Player ? PlayerUtil.getPlayerNameWithRank((Player) sender) : "<bold><red>CONSOLE")}");
+        target.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Your gamemode has been set to <blue>\{gameMode.name()} <gray>by \{PlayerUtil.getPlayerNameWithRank(sender)}");
         sender.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Set \{PlayerUtil.getPlayerNameWithRank(target)} <gray>gamemode to <blue>\{gameMode.name()}");
 
         return Command.SINGLE_SUCCESS;

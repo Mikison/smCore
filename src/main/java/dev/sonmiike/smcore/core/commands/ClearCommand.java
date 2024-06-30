@@ -54,7 +54,7 @@ public class ClearCommand {
         if (!PlayerUtil.playerHasPermission(sender, "smcore.clear.other")) return 0;
 
         target.getInventory().clear();
-        target.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Your inventory has been cleared by \{(sender instanceof Player ? PlayerUtil.getPlayerNameWithRank((Player) sender) : "<bold><red>CONSOLE")}");
+        target.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Your inventory has been cleared by \{PlayerUtil.getPlayerNameWithRank(sender)}");
         sender.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>You have cleared the inventory of \{PlayerUtil.getPlayerNameWithRank(target)}");
 
         return Command.SINGLE_SUCCESS;

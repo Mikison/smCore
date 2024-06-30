@@ -9,7 +9,10 @@ import static dev.sonmiike.smcore.core.util.MiniFormatter.MM;
 
 public class PlayerUtil {
 
-    public static String getPlayerNameWithRank(Player player) {
+    public static final String CONSOLE_PREFIX = "<bold><red>CONSOLE</bold>";
+
+    public static String getPlayerNameWithRank(CommandSender sender) {
+        if (!(sender instanceof Player player)) return CONSOLE_PREFIX;
         String prefix = LuckPermsProvider.get().getUserManager().getUser(player.getUniqueId())
             .getCachedData().getMetaData().getPrefix();
         String s = prefix != null ? STR."\{prefix} " : "";

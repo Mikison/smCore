@@ -60,7 +60,7 @@ public class SpeedCommand {
                                 if (!PlayerUtil.playerHasPermission(sender, "smcore.speed.others")) return 0;
 
                                 speedSetter.setSpeed(target, speed / 10f);
-                                target.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Your \{type} speed has been set to <blue>\{speed} <gray>by \{sender instanceof Player player ? PlayerUtil.getPlayerNameWithRank(player) : "<bold><red>CONSOLE"} ");
+                                target.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Your \{type} speed has been set to <blue>\{speed} <gray>by \{PlayerUtil.getPlayerNameWithRank(sender)} ");
                                 sender.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Set \{PlayerUtil.getPlayerNameWithRank(target)}<gray> \{type} speed to <blue>\{speed}");
                                 return Command.SINGLE_SUCCESS;
                             })

@@ -14,6 +14,7 @@ import net.luckperms.api.node.NodeType;
 import net.luckperms.api.node.types.PrefixNode;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerEditBookEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Set;
@@ -28,6 +29,7 @@ public class LuckPermsListener  {
         this.plugin = plugin;
         this.prefixSuffixManager = prefixSuffixManager;
         this.vanishManager = vanishManager;
+
 
         EventBus eventBus = luckPerms.getEventBus();
 

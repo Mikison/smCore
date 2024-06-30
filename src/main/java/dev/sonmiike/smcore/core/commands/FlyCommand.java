@@ -39,10 +39,11 @@ public class FlyCommand {
             .then(
                 Commands.argument("player", ArgumentTypes.player())
                     .executes(context -> {
+                        final CommandSender sender = context.getSource().getSender();
                         final Player target = context.getArgument("player", PlayerSelectorArgumentResolver.class).resolve(context.getSource()).getFirst();
                         if (!PlayerUtil.playerHasPermission(target, "smcore.fly.other")) return 0;
                         target.setAllowFlight(!target.getAllowFlight());
-                        target.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Fly mode <blue>\{(target.getAllowFlight() ? "ENABLED" : "DISABLED")} <gray>by \{(context.getSource().getSender() instanceof Player ? PlayerUtil.getPlayerNameWithRank((Player) context.getSource().getSender()) : "<bold><red>CONSOLE")}");
+                        target.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Fly mode <blue>\{(target.getAllowFlight() ? "ENABLED" : "DISABLED")} <gray>by \{PlayerUtil.getPlayerNameWithRank(sender)}");
                         context.getSource().getSender().sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>You have \{(target.getAllowFlight() ? "ENABLED" : "DISABLED")} fly mode for \{PlayerUtil.getPlayerNameWithRank(target)}");
                         return Command.SINGLE_SUCCESS;
                     }

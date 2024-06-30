@@ -1,7 +1,9 @@
 package dev.sonmiike.smcore.core.listeners;
 
 import dev.sonmiike.smcore.SmCore;
+import dev.sonmiike.smcore.core.managers.MuteManager;
 import dev.sonmiike.smcore.core.util.MiniFormatter;
+import dev.sonmiike.smcore.core.util.PlayerUtil;
 import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
@@ -17,18 +19,25 @@ import static dev.sonmiike.smcore.core.util.MiniFormatter.MM;
 public class AsyncPlayerChatListener implements Listener {
 
     private final SmCore plugin;
+    private final MuteManager muteManager;
 
-    public AsyncPlayerChatListener(SmCore plugin) {
+    public AsyncPlayerChatListener(SmCore plugin, MuteManager muteManager) {
         this.plugin = plugin;
+        this.muteManager = muteManager;
     }
 
     @EventHandler
     void onPlayerChat(AsyncChatEvent event) {
-        if (isPlayerMuted(event.getPlayer())) {
+        Player sender = event.getPlayer();
+        if (isPlayerMuted(sender)) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage(MM."<bold><dark_gray>[<red>!<dark_gray>]</bold> <gray>You are muted! Add who and reason");
+            sender.sendMessage(MM."<bold><dark_gray>[<red>!<dark_gray>]</bold> <red>You are muted! <dark_gray>| <red>Reason: <gray>\{muteManager.getMuteReason(sender.getUniqueId())} <dark_gray>| <red>Expires in: <gray>\{muteManager.getDuration(sender.getUniqueId())} <dark_gray>| <red>Muted by: <gray>\{PlayerUtil.getPlayerNameWithRank(muteManager.getMutedBy(sender.getUniqueId()))}");
             return;
         }
+        if (!isPlayerMuted(sender) && muteManager.mapContainsPlayer(sender.getUniqueId())) {
+            muteManager.unmutePlayer(sender.getUniqueId());
+        }
+
 
         event.renderer(ChatRenderer.viewerUnaware((player, sourceDisplayName, message) -> {
             final User user = LuckPermsProvider.get().getUserManager().getUser(player.getUniqueId());
@@ -52,7 +61,7 @@ public class AsyncPlayerChatListener implements Listener {
 
 
     private boolean isPlayerMuted(Player player) {
-        return plugin.getDatabaseManager().isPlayerMuted(player.getUniqueId());
+        return muteManager.isPlayerMuted(player.getUniqueId());
     }
 
     private boolean isPlayerIgnored(Player player) {

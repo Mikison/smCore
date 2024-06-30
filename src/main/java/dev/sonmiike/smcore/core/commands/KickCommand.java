@@ -8,6 +8,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -19,41 +20,42 @@ import static dev.sonmiike.smcore.core.util.MiniFormatter.MM;
 
 public class KickCommand {
 
+    private final JavaPlugin plugin;
+    private final Commands commands;
 
     public KickCommand(JavaPlugin plugin, Commands commands) {
-        register(plugin, commands);
+        this.plugin = plugin;
+        this.commands = commands;
+        register();
     }
 
-    private void register(JavaPlugin plugin, Commands commands) {
+    private void register() {
         final LiteralArgumentBuilder<CommandSourceStack> kickBuilder = Commands.literal("kick")
             .then(Commands.argument("player", ArgumentTypes.player())
-                .executes(context -> {
-                    final CommandSourceStack source = context.getSource();
-                    final Player target = context.getArgument("player", PlayerSelectorArgumentResolver.class).resolve(source).getFirst();
-                    final CommandSender sender = source.getSender();
-                    if (!PlayerUtil.playerHasPermission(sender, "smcore.kick")) return 0;
-                    Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(MM."<bold><dark_gray>[<red>!<dark_gray>]</bold> <gray>\{target.getName()} <red>has been kicked by \{sender instanceof Player kicker ? PlayerUtil.getPlayerNameWithRank(kicker) : "<bold><red>CONSOLE"}"));
-                    target.kick(MM."<red>You have been kicked from the server by \{sender instanceof Player player ? PlayerUtil.getPlayerNameWithRank(player) : "<bold><red>CONSOLE"}");
-                    return Command.SINGLE_SUCCESS;
-                })
-                .then(Commands.argument("reason", StringArgumentType.string())
-                    .executes(context -> {
-                        final CommandSourceStack source = context.getSource();
-                        final Player target = context.getArgument("player", PlayerSelectorArgumentResolver.class).resolve(source).getFirst();
-                        final String reason = context.getArgument("reason", String.class);
-                        final CommandSender sender = source.getSender();
-                        if (!PlayerUtil.playerHasPermission(sender, "smcore.kick")) return 0;
-                        Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(MM."<bold><dark_gray>[<red>!<dark_gray>]</bold> <gray>\{target.getName()} <red>has been kicked by \{sender instanceof Player kicker ? PlayerUtil.getPlayerNameWithRank(kicker) : "<bold><red>CONSOLE"}"
-                            .appendNewline()
-                            .append(MM."<bold><dark_gray>[<red>!<dark_gray>]</bold><red><bold> Reason: <white>\{reason}")));
-                        target.kick(MM."<bold><dark_gray>[<red>!<dark_gray>]</bold><red>You have been kicked from the server by \{sender instanceof Player player ? PlayerUtil.getPlayerNameWithRank(player) : "<bold><red>CONSOLE"}"
-                            .appendNewline()
-                            .appendNewline()
-                            .append(MM."<reset><red>Reason: <white>\{reason}"));
-                        return Command.SINGLE_SUCCESS;
-                    })
+                .executes(context -> kickPlayer(context.getSource(), context.getArgument("player", PlayerSelectorArgumentResolver.class).resolve(context.getSource()).getFirst(), null))
+                .then(Commands.argument("reason", StringArgumentType.greedyString())
+                    .executes(context -> kickPlayer(context.getSource(), context.getArgument("player", PlayerSelectorArgumentResolver.class).resolve(context.getSource()).getFirst(), context.getArgument("reason", String.class)))
                 )
             );
         commands.register(plugin.getPluginMeta(), kickBuilder.build(), "kick", List.of());
+    }
+
+    private int kickPlayer(CommandSourceStack source, Player target, String reason) {
+        CommandSender sender = source.getSender();
+        if (!PlayerUtil.playerHasPermission(sender, "smcore.kick")) return 0;
+
+        final String senderName = PlayerUtil.getPlayerNameWithRank(sender);
+        Component kickMessage = MM."<red>You have been kicked from the server by \{senderName}";
+        Component broadcastMessage = MM."<bold><dark_gray>[<red>!<dark_gray>]</bold><gray> \{target.getName()} <red>has been kicked by \{senderName}";
+
+        if (reason != null) {
+            kickMessage = kickMessage.appendNewline().append(MM."<red><bold>Reason: <white>\{reason}");
+            broadcastMessage = broadcastMessage.append(MM." <dark_gray>|<reset><bold> Reason:</bold> <white>\{reason}");
+        }
+
+        Component finalBroadcastMessage = broadcastMessage;
+        Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(finalBroadcastMessage));
+        target.kick(kickMessage);
+        return Command.SINGLE_SUCCESS;
     }
 }

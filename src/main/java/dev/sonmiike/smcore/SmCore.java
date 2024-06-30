@@ -29,6 +29,7 @@ public final class SmCore extends JavaPlugin {
     private GodManager godManager;
     @Getter
     private NPCManager npcManager;
+    private MuteManager muteManager;
     private TaskManager taskManager;
     private LuckPerms luckPerms;
 
@@ -53,6 +54,7 @@ public final class SmCore extends JavaPlugin {
         godManager = new GodManager(taskManager, this);
         vanishManager = new VanishManager(this, taskManager, teamsManager, godManager);
         npcManager = new NPCManager(this);
+        muteManager = new MuteManager(this, databaseManager);
 
         registerListeners();
         registerViaOnEnable(this);
@@ -76,7 +78,7 @@ public final class SmCore extends JavaPlugin {
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, vanishManager, godManager, teamsManager, npcManager), this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(this, vanishManager, godManager), this);
-        getServer().getPluginManager().registerEvents(new AsyncPlayerChatListener(this), this);
+        getServer().getPluginManager().registerEvents(new AsyncPlayerChatListener(this, muteManager), this);
         getServer().getPluginManager().registerEvents(new PlayerMoveListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), this);
         getServer().getPluginManager().registerEvents(new GodModeListener(godManager, vanishManager), this);
@@ -103,7 +105,7 @@ public final class SmCore extends JavaPlugin {
             new FlyCommand(plugin, commands);
             new TeleportCommand(plugin, commands);
             new KickCommand(plugin, commands);
-            new MuteCommand(plugin, commands);
+            new MuteCommand(plugin, commands, muteManager);
         });
     }
 
