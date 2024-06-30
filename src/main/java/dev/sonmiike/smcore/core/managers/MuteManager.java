@@ -66,6 +66,7 @@ public class MuteManager {
 
     public boolean isPlayerMuted(UUID uuid) {
         MuteInfo muteInfo = mutedPlayers.get(uuid);
+        if (muteInfo == null) return false;
         if (muteInfo.expiresAt() == null) return true;
         return muteInfo.expiresAt().isAfter(LocalDateTime.now());
     }
