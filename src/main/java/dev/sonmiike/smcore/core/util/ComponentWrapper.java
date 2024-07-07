@@ -9,11 +9,13 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
 
-public class ComponentWrapper {
+public class ComponentWrapper
+{
 
-
-    public static List<Component> wrap(Component component, int length) {
-        if (!(component instanceof TextComponent text)) {
+    public static List<Component> wrap(Component component, int length)
+    {
+        if (!(component instanceof TextComponent text))
+        {
             return Collections.singletonList(component);
         }
 
@@ -22,7 +24,8 @@ public class ComponentWrapper {
         List<TextComponent> parts = flatten(text);
         Component currentLine = Component.empty();
         int lineLength = 0;
-        for (int i = 0; i < parts.size(); i++) {
+        for (int i = 0; i < parts.size(); i++)
+        {
             TextComponent part = parts.get(i);
             Style style = part.style();
             String content = part.content();
@@ -33,16 +36,18 @@ public class ComponentWrapper {
             StringBuilder lineBuilder = new StringBuilder();
 
             String[] words = content.split(" ");
-            words = Arrays.stream(words)
-                .flatMap(word -> Arrays.stream(word.splitWithDelimiters("\n", -1)))
-                .toArray(String[]::new);
-            for (int j = 0; j < words.length; j++) {
+            words = Arrays.stream(words).flatMap(word -> Arrays.stream(word.splitWithDelimiters("\n", -1)))
+                    .toArray(String[]::new);
+            for (int j = 0; j < words.length; j++)
+            {
                 String word = words[j];
                 boolean lastWord = j == words.length - 1;
-                if (word.isEmpty()) continue;
+                if (word.isEmpty())
+                    continue;
                 boolean isLongEnough = lineLength != 0 && lineLength + word.length() > length;
                 int newLines = StringUtils.countMatches(word, "\n") + (isLongEnough ? 1 : 0);
-                for (int k = 0; k < newLines; ++k) {
+                for (int k = 0; k < newLines; ++k)
+                {
                     String endOfLine = lineBuilder.toString();
 
                     currentLine = currentLine.append(Component.text(endOfLine).style(style));
@@ -58,19 +63,22 @@ public class ComponentWrapper {
                 lineLength += word.length() + 1;
             }
             String endOfComponent = lineBuilder.toString();
-            if (!endOfComponent.isEmpty()) {
+            if (!endOfComponent.isEmpty())
+            {
                 currentLine = currentLine.append(Component.text(endOfComponent).style(style));
             }
         }
 
-        if (lineLength > 0) {
+        if (lineLength > 0)
+        {
             wrapped.add(currentLine);
         }
 
         return wrapped;
     }
 
-    private static List<TextComponent> flatten(TextComponent component) {
+    private static List<TextComponent> flatten(TextComponent component)
+    {
         List<TextComponent> flattened = new ArrayList<>();
 
         Style enforcedState = enforceStates(component.style());
@@ -79,18 +87,24 @@ public class ComponentWrapper {
         Stack<TextComponent> toCheck = new Stack<>();
         toCheck.add(component);
 
-        while (!toCheck.empty()) {
+        while (!toCheck.empty())
+        {
             TextComponent parent = toCheck.pop();
-            if (!parent.content().isEmpty()) {
+            if (!parent.content().isEmpty())
+            {
                 flattened.add(parent);
             }
 
-            for (Component child : parent.children().reversed()) {
-                if (child instanceof TextComponent text) {
+            for (Component child : parent.children().reversed())
+            {
+                if (child instanceof TextComponent text)
+                {
                     Style style = parent.style();
                     style = style.merge(child.style());
                     toCheck.add(text.style(style));
-                } else {
+                }
+                else
+                {
                     toCheck.add(unsupported());
                 }
             }
@@ -98,17 +112,20 @@ public class ComponentWrapper {
         return flattened;
     }
 
-    private static Style enforceStates(Style style) {
+    private static Style enforceStates(Style style)
+    {
         Style.Builder builder = style.toBuilder();
         style.decorations().forEach((decoration, state) -> {
-            if (state == TextDecoration.State.NOT_SET) {
+            if (state == TextDecoration.State.NOT_SET)
+            {
                 builder.decoration(decoration, false);
             }
         });
         return builder.build();
     }
 
-    private static TextComponent unsupported() {
+    private static TextComponent unsupported()
+    {
         return Component.text("!CANNOT WRAP!").color(NamedTextColor.DARK_RED);
     }
 }

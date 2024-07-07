@@ -6,23 +6,27 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class TaskManager {
-
+public class TaskManager
+{
 
     private final Map<UUID, ActionBarTask> actionBarTasks = new HashMap<>();
 
-    public void addTask(UUID playerUUID, ActionBarTask task) {
+    public void addTask(UUID playerUUID, ActionBarTask task)
+    {
         actionBarTasks.put(playerUUID, task);
     }
 
-    public void removeTask(UUID playerUUID) {
+    public void removeTask(UUID playerUUID)
+    {
         final ActionBarTask task = actionBarTasks.remove(playerUUID);
-        if (task != null) {
+        if (task != null)
+        {
             task.cancel();
         }
     }
 
-    public ActionBarTask getTask(UUID playerUUID) {
+    public ActionBarTask getTask(UUID playerUUID)
+    {
         return actionBarTasks.get(playerUUID);
     }
 }

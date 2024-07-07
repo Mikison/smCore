@@ -16,60 +16,68 @@ import java.util.List;
 
 import static dev.sonmiike.smcore.core.util.MiniFormatter.MM;
 
-public class SpeedCommand {
+public class SpeedCommand
+{
 
-    public SpeedCommand(SmCore plugin, Commands commands) {
+    public SpeedCommand(SmCore plugin, Commands commands)
+    {
         register(plugin, commands);
     }
 
-    private void register(SmCore plugin, Commands commands) {
+    private void register(SmCore plugin, Commands commands)
+    {
         final LiteralArgumentBuilder<CommandSourceStack> speedBuilder = Commands.literal("speed")
-            .then(createSpeedSubcommand("walk", Player::setWalkSpeed))
-            .then(createSpeedSubcommand("fly", Player::setFlySpeed));
+                .then(createSpeedSubcommand("walk", Player::setWalkSpeed))
+                .then(createSpeedSubcommand("fly", Player::setFlySpeed));
 
         commands.register(plugin.getPluginMeta(), speedBuilder.build(), "speed", List.of());
     }
 
-    private LiteralArgumentBuilder<CommandSourceStack> createSpeedSubcommand(String type, SpeedSetter speedSetter) {
+    private LiteralArgumentBuilder<CommandSourceStack> createSpeedSubcommand(String type, SpeedSetter speedSetter)
+    {
         return Commands.literal(type)
-            .then(
-                Commands.argument("speed", IntegerArgumentType.integer(1, 10))
-                    .executes(context -> {
-                        final CommandSourceStack sourceStack = context.getSource();
-                        final int speed = context.getArgument("speed", Integer.class);
-                        final CommandSender sender = sourceStack.getSender();
+                .then(Commands.argument("speed", IntegerArgumentType.integer(1, 10)).executes(context -> {
+                    final CommandSourceStack sourceStack = context.getSource();
+                    final int speed = context.getArgument("speed", Integer.class);
+                    final CommandSender sender = sourceStack.getSender();
 
-                        if (!(sender instanceof Player player)) {
-                            sender.sendMessage(MM."<bold><dark_gray>[<red>!<dark_gray>]</bold> <red>You must be a player to use this command");
-                            return 0;
-                        }
-                        if (!PlayerUtil.playerHasPermission(player, "smcore.speed")) return 0;
+                    if (!(sender instanceof Player player))
+                    {
+                        sender.sendMessage(
+                                MM."<bold><dark_gray>[<red>!<dark_gray>]</bold> <red>You must be a player to use this command");
+                        return 0;
+                    }
+                    if (!PlayerUtil.playerHasPermission(player, "smcore.speed"))
+                        return 0;
 
-                        speedSetter.setSpeed(player, speed / 10f);
-                        player.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Your \{type} speed has been set to <blue>\{speed}");
-                        return Command.SINGLE_SUCCESS;
-                    })
-                    .then(
-                        Commands.argument("player", ArgumentTypes.player())
-                            .executes(context -> {
-                                final CommandSourceStack sourceStack = context.getSource();
-                                final CommandSender sender = sourceStack.getSender();
-                                final Player target = context.getArgument("player", PlayerSelectorArgumentResolver.class).resolve(sourceStack).getFirst();
-                                final int speed = context.getArgument("speed", Integer.class);
+                    speedSetter.setSpeed(player, speed / 10f);
+                    player.sendMessage(
+                            MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Your \{type} speed has been set to <blue>\{speed}");
+                    return Command.SINGLE_SUCCESS;
+                }).then(Commands.argument("player", ArgumentTypes.player()).executes(context -> {
+                    final CommandSourceStack sourceStack = context.getSource();
+                    final CommandSender sender = sourceStack.getSender();
+                    final Player target = context.getArgument("player", PlayerSelectorArgumentResolver.class)
+                            .resolve(sourceStack).getFirst();
+                    final int speed = context.getArgument("speed", Integer.class);
 
-                                if (!PlayerUtil.playerHasPermission(sender, "smcore.speed.others")) return 0;
+                    if (!PlayerUtil.playerHasPermission(sender, "smcore.speed.others"))
+                        return 0;
 
-                                speedSetter.setSpeed(target, speed / 10f);
-                                target.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Your \{type} speed has been set to <blue>\{speed} <gray>by \{PlayerUtil.getPlayerNameWithRank(sender)} ");
-                                sender.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Set \{PlayerUtil.getPlayerNameWithRank(target)}<gray> \{type} speed to <blue>\{speed}");
-                                return Command.SINGLE_SUCCESS;
-                            })
-                    )
-            );
+                    speedSetter.setSpeed(target, speed / 10f);
+                    target.sendMessage(
+                            MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Your \{type} speed has been set to <blue>\{speed} <gray>by \{PlayerUtil.getPlayerNameWithRank(
+                                    sender)} ");
+                    sender.sendMessage(
+                            MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>Set \{PlayerUtil.getPlayerNameWithRank(
+                                    target)}<gray> \{type} speed to <blue>\{speed}");
+                    return Command.SINGLE_SUCCESS;
+                })));
     }
 
     @FunctionalInterface
-    private interface SpeedSetter {
+    private interface SpeedSetter
+    {
         void setSpeed(Player player, float speed);
     }
 }

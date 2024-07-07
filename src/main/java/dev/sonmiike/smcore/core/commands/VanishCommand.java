@@ -14,34 +14,36 @@ import java.util.List;
 
 import static dev.sonmiike.smcore.core.util.MiniFormatter.MM;
 
-public class VanishCommand {
+public class VanishCommand
+{
 
     private final VanishManager vanishManager;
 
-    public VanishCommand(JavaPlugin plugin, Commands commands,VanishManager vanishManager) {
+    public VanishCommand(JavaPlugin plugin, Commands commands, VanishManager vanishManager)
+    {
         this.vanishManager = vanishManager;
         register(plugin, commands);
     }
 
-    public void register(JavaPlugin plugin, Commands commands) {
+    public void register(JavaPlugin plugin, Commands commands)
+    {
         final LiteralArgumentBuilder<CommandSourceStack> vanishBuilder = Commands.literal("vanish")
-            .executes((source) -> {
-                CommandSourceStack sourceStack = source.getSource();
-                CommandSender sender = sourceStack.getSender();
-                if (!(sender instanceof Player player)) {
-                    sender.sendMessage(MM."<bold><dark_gray>[<red>!<dark_gray>]</bold> <gray>You must be a player to use this command");
-                    return 0;
-                }
-                if (!PlayerUtil.playerHasPermission(player, "smcore.vanish")) return 0;
-                vanishManager.toggleVanish(player);
-                return Command.SINGLE_SUCCESS;
-            });
+                .executes((source) -> {
+                    CommandSourceStack sourceStack = source.getSource();
+                    CommandSender sender = sourceStack.getSender();
+                    if (!(sender instanceof Player player))
+                    {
+                        sender.sendMessage(
+                                MM."<bold><dark_gray>[<red>!<dark_gray>]</bold> <gray>You must be a player to use this command");
+                        return 0;
+                    }
+                    if (!PlayerUtil.playerHasPermission(player, "smcore.vanish"))
+                        return 0;
+                    vanishManager.toggleVanish(player);
+                    return Command.SINGLE_SUCCESS;
+                });
 
         commands.register(plugin.getPluginMeta(), vanishBuilder.build(), "vanish", List.of("v"));
     }
-
-
-
-
 
 }

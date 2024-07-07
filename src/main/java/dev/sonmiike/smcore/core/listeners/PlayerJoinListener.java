@@ -12,14 +12,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-
 import static dev.sonmiike.smcore.core.util.MiniFormatter.MM;
 
-
-public class PlayerJoinListener implements Listener {
+public class PlayerJoinListener implements Listener
+{
 
     private final SmCore plugin;
     private final VanishManager vanishManager;
@@ -27,8 +23,9 @@ public class PlayerJoinListener implements Listener {
     private final TeamsManager prefixManager;
     private final NPCManager npcManager;
 
-
-    public PlayerJoinListener(SmCore plugin, VanishManager vanishManager, GodManager godManager, TeamsManager prefixManager, NPCManager npcManager) {
+    public PlayerJoinListener(SmCore plugin, VanishManager vanishManager, GodManager godManager,
+            TeamsManager prefixManager, NPCManager npcManager)
+    {
         this.plugin = plugin;
         this.vanishManager = vanishManager;
         this.godManager = godManager;
@@ -37,14 +34,16 @@ public class PlayerJoinListener implements Listener {
     }
 
     @EventHandler
-    void onPlayerJoin(PlayerJoinEvent event) {
+    void onPlayerJoin(PlayerJoinEvent event)
+    {
         final Player player = event.getPlayer();
-        event.joinMessage(MM."<white>» "
-            .append(MM."\{PlayerUtil.getPlayerNameWithRank(player)}")
-            .append(MM."<gray> joined the server."));
+        event.joinMessage(MM."<white>» ".append(MM."\{PlayerUtil.getPlayerNameWithRank(player)}")
+                .append(MM."<gray> joined the server."));
 
-        if (!plugin.getDatabaseManager().playerExists(player.getUniqueId())) {
-            plugin.getDatabaseManager().addPlayer(player.getUniqueId(), player.getName(), player.getAddress().getAddress().getHostAddress());
+        if (!plugin.getDatabaseManager().playerExists(player.getUniqueId()))
+        {
+            plugin.getDatabaseManager().addPlayer(player.getUniqueId(), player.getName(),
+                    player.getAddress().getAddress().getHostAddress());
         }
 
         handlePlayerVisibilityAndGodState(player);
@@ -54,14 +53,15 @@ public class PlayerJoinListener implements Listener {
 
     }
 
-
-    private void handlePlayerVisibilityAndGodState(Player player) {
+    private void handlePlayerVisibilityAndGodState(Player player)
+    {
         vanishManager.handlePlayerJoin(player);
         godManager.handlePlayerJoin(player);
         vanishManager.updateVisibilityForAllPlayers();
     }
 
-    private void updatePrefixForPlayer(Player player) {
+    private void updatePrefixForPlayer(Player player)
+    {
         prefixManager.updateDisplayName(player, vanishManager.isVanished(player));
     }
 }

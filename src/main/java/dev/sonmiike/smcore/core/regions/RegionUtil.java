@@ -12,14 +12,19 @@ import org.bukkit.scoreboard.Team;
 
 import static org.bukkit.Bukkit.getServer;
 
-public class RegionUtil {
+public class RegionUtil
+{
 
-
-    public static void killSelectorsWithTag(String inputTag) {
-        for (World world : getServer().getWorlds()) {
-            for (Entity entity : world.getEntities()) {
-                for (String tag : entity.getScoreboardTags()) {
-                    if (tag.equals("kodyselector-" + inputTag)) {
+    public static void killSelectorsWithTag(String inputTag)
+    {
+        for (World world : getServer().getWorlds())
+        {
+            for (Entity entity : world.getEntities())
+            {
+                for (String tag : entity.getScoreboardTags())
+                {
+                    if (tag.equals("kodyselector-" + inputTag))
+                    {
                         entity.remove();
                         break;
                     }
@@ -28,11 +33,16 @@ public class RegionUtil {
         }
     }
 
-    public static void killAllSelectors() {
-        for (World world : getServer().getWorlds()) {
-            for (Entity entity : world.getEntities()) {
-                for (String tag : entity.getScoreboardTags()) {
-                    if (tag.startsWith("kodyselector-")) {
+    public static void killAllSelectors()
+    {
+        for (World world : getServer().getWorlds())
+        {
+            for (Entity entity : world.getEntities())
+            {
+                for (String tag : entity.getScoreboardTags())
+                {
+                    if (tag.startsWith("kodyselector-"))
+                    {
                         entity.remove();
                         break;
                     }
@@ -41,19 +51,24 @@ public class RegionUtil {
         }
     }
 
-    public static void removeTempTeams() {
+    public static void removeTempTeams()
+    {
         Scoreboard board = Bukkit.getScoreboardManager().getMainScoreboard();
-        for (Team team : board.getTeams()) {
-            if (team.getName().startsWith("kodyselector+")) {
+        for (Team team : board.getTeams())
+        {
+            if (team.getName().startsWith("kodyselector+"))
+            {
                 team.unregister();
             }
         }
     }
 
-    public static void drawSelector(Region region, World world, String id, NamedTextColor glowColor) {
+    public static void drawSelector(Region region, World world, String id, NamedTextColor glowColor)
+    {
         Location loc1 = region.getCorner1();
         Location loc2 = region.getCorner2();
-        if (loc1.getWorld() == null || !loc1.getWorld().equals(loc2.getWorld())) {
+        if (loc1.getWorld() == null || !loc1.getWorld().equals(loc2.getWorld()))
+        {
             return;
         }
         int minx = Math.min(loc1.getBlockX(), loc2.getBlockX());
@@ -67,39 +82,50 @@ public class RegionUtil {
 
         int highestNumber = 0;
 
-        for (Team team : board.getTeams()) {
-            if (team.getName().startsWith("kodyselector+")) {
+        for (Team team : board.getTeams())
+        {
+            if (team.getName().startsWith("kodyselector+"))
+            {
                 String number = team.getName().substring(13);
-                try {
+                try
+                {
                     int tempNumber = Integer.parseInt(number);
-                    if (tempNumber >= highestNumber) {
+                    if (tempNumber >= highestNumber)
+                    {
                         highestNumber = tempNumber;
                     }
-                } catch (NumberFormatException ignored) {}
+                }
+                catch (NumberFormatException ignored)
+                {
+                }
             }
         }
 
         Team selectorTeam = board.registerNewTeam("kodyselector+" + (highestNumber + 1));
-        if (glowColor != null) {
+        if (glowColor != null)
+        {
             selectorTeam.color(glowColor);
         }
         selectorTeam.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
 
-        for (double x = minx; x <= maxx; x++) {
+        for (double x = minx; x <= maxx; x++)
+        {
             makeSlime(id, world, selectorTeam, x, miny, minz);
             makeSlime(id, world, selectorTeam, x, maxy, minz);
             makeSlime(id, world, selectorTeam, x, miny, maxz);
             makeSlime(id, world, selectorTeam, x, maxy, maxz);
         }
 
-        for (double y = miny; y <= maxy; y++) {
+        for (double y = miny; y <= maxy; y++)
+        {
             makeSlime(id, world, selectorTeam, minx, y, minz);
             makeSlime(id, world, selectorTeam, maxx, y, minz);
             makeSlime(id, world, selectorTeam, minx, y, maxz);
             makeSlime(id, world, selectorTeam, maxx, y, maxz);
         }
 
-        for (double z = minz; z <= maxz; z++) {
+        for (double z = minz; z <= maxz; z++)
+        {
             makeSlime(id, world, selectorTeam, minx, miny, z);
             makeSlime(id, world, selectorTeam, maxx, miny, z);
             makeSlime(id, world, selectorTeam, minx, maxy, z);
@@ -108,7 +134,8 @@ public class RegionUtil {
 
     }
 
-    private static void makeSlime(String id, World world, Team selectorTeam, double x, double y, double z) {
+    private static void makeSlime(String id, World world, Team selectorTeam, double x, double y, double z)
+    {
         Slime slime = (Slime) world.spawnEntity(new Location(world, x + 0.5, y, z + 0.5), EntityType.SLIME);
         slime.setSize(2);
         slime.setAI(false);

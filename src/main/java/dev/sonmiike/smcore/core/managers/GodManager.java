@@ -14,96 +14,109 @@ import java.util.UUID;
 
 import static dev.sonmiike.smcore.core.util.MiniFormatter.MM;
 
-public class GodManager {
+public class GodManager
+{
 
     private final TaskManager taskManager;
     private final SmCore plugin;
+    private final Set<UUID> godPlayers = new HashSet<>();
 
-    public GodManager(TaskManager taskManager, SmCore plugin) {
+    public GodManager(TaskManager taskManager, SmCore plugin)
+    {
         this.taskManager = taskManager;
         this.plugin = plugin;
     }
 
-    private final Set<UUID> godPlayers = new HashSet<>();
-
-    public boolean isGod(Player player) {
+    public boolean isGod(Player player)
+    {
         return godPlayers.contains(player.getUniqueId());
     }
 
-    public void toggleGod(Player player) {
+    public void toggleGod(Player player)
+    {
         setGod(player, !isGod(player));
     }
 
-    private void setGod(Player player, boolean god) {
-        if (god) {
+    private void setGod(Player player, boolean god)
+    {
+        if (god)
+        {
             godPlayers.add(player.getUniqueId());
             applyGodState(player);
             player.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>God mode <blue>ENABLED");
-        } else {
+        }
+        else
+        {
             godPlayers.remove(player.getUniqueId());
             player.sendMessage(MM."<bold><dark_gray>[<blue>!<dark_gray>]</bold> <gray>God mode <blue>DISABLED");
         }
         handleActionBarTask(player);
     }
 
-    private void applyGodState(Player player) {
+    private void applyGodState(Player player)
+    {
         player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
         player.setFoodLevel(20);
         setNearbyEntitiesTargetNull(player);
     }
 
-    private void handleActionBarTask(Player player) {
+    private void handleActionBarTask(Player player)
+    {
         ActionBarTask task = taskManager.getTask(player.getUniqueId());
         boolean isGod = isGod(player);
 
-        if (isGod) {
-            if (task == null) {
+        if (isGod)
+        {
+            if (task == null)
+            {
                 task = new ActionBarTask(player);
                 taskManager.addTask(player.getUniqueId(), task);
                 task.runTaskTimer(plugin, 0L, 40L);
             }
             task.setGodMode(isGod);
-        } else if (task != null && !task.isVanished()) {
+        }
+        else if (task != null && !task.isVanished())
+        {
             taskManager.removeTask(player.getUniqueId());
             task.cancel();
-        } else {
+        }
+        else
+        {
             task.setGodMode(isGod);
         }
     }
 
-    private void setNearbyEntitiesTargetNull(Player player) {
+    private void setNearbyEntitiesTargetNull(Player player)
+    {
         List<Entity> nearbyEntities = player.getNearbyEntities(30, 30, 30);
-        for (Entity entities : nearbyEntities) {
-            if (entities instanceof Creature creature) {
+        for (Entity entities : nearbyEntities)
+        {
+            if (entities instanceof Creature creature)
+            {
                 creature.setTarget(null);
             }
         }
     }
 
-    public void handlePlayerJoin(Player player) {
-        if (!player.hasPermission("smcore.god") && isGod(player)) {
+    public void handlePlayerJoin(Player player)
+    {
+        if (!player.hasPermission("smcore.god") && isGod(player))
+        {
             setGod(player, false);
         }
 
-        if (isGod(player)) {
+        if (isGod(player))
+        {
             handleActionBarTask(player);
+        }
+        if (player.hasPermission("smcore.god") && !isGod(player))
+        {
+            setGod(player, true);
         }
     }
 
-//    public void handlePlayerJoin(Player player) {
-//        if (!player.hasPermission("smcore.god") && isGod(player)) {
-//            setGod(player, false);
-//        }
-//
-//        if (isGod(player)) {
-//            handleActionBarTask(player);
-//        } else if (player.hasPermission("smcore.vanish")) {
-//            handleActionBarTask(player);
-//            setGod(player, true);
-//        }
-//    }
-
-    public void handlePlayerQuit(Player player) {
+    public void handlePlayerQuit(Player player)
+    {
         if (taskManager.getTask(player.getUniqueId()) != null)
             taskManager.removeTask(player.getUniqueId());
     }

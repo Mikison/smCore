@@ -14,28 +14,33 @@ import java.util.List;
 
 import static dev.sonmiike.smcore.core.util.MiniFormatter.MM;
 
-public class GodCommand {
+public class GodCommand
+{
 
     private final GodManager godManager;
 
-    public GodCommand(JavaPlugin plugin, Commands commands, GodManager godManager) {
+    public GodCommand(JavaPlugin plugin, Commands commands, GodManager godManager)
+    {
         this.godManager = godManager;
-        register(plugin,commands);
+        register(plugin, commands);
     }
 
-    private void register(JavaPlugin plugin, Commands commands) {
-        final LiteralArgumentBuilder<CommandSourceStack> vanishBuilder = Commands.literal("god")
-            .executes((source) -> {
-                final CommandSourceStack sourceStack = source.getSource();
-                final CommandSender sender = sourceStack.getSender();
-                if (!(sender instanceof Player player)) {
-                    sender.sendMessage(MM."<bold><dark_gray>[<red>!<dark_gray>]</bold> <gray>You must be a player to use this command");
-                    return 0;
-                }
-                if (!PlayerUtil.playerHasPermission(player, "smcore.god")) return 0;
-                godManager.toggleGod(player);
-                return Command.SINGLE_SUCCESS;
-            });
+    private void register(JavaPlugin plugin, Commands commands)
+    {
+        final LiteralArgumentBuilder<CommandSourceStack> vanishBuilder = Commands.literal("god").executes((source) -> {
+            final CommandSourceStack sourceStack = source.getSource();
+            final CommandSender sender = sourceStack.getSender();
+            if (!(sender instanceof Player player))
+            {
+                sender.sendMessage(
+                        MM."<bold><dark_gray>[<red>!<dark_gray>]</bold> <gray>You must be a player to use this command");
+                return 0;
+            }
+            if (!PlayerUtil.playerHasPermission(player, "smcore.god"))
+                return 0;
+            godManager.toggleGod(player);
+            return Command.SINGLE_SUCCESS;
+        });
 
         commands.register(plugin.getPluginMeta(), vanishBuilder.build(), "god", List.of());
     }

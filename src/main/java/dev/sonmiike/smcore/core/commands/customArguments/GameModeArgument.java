@@ -7,27 +7,34 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.argument.CustomArgumentType;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
-public class GameModeArgument implements CustomArgumentType.Converted<GameModeType, String> {
+public class GameModeArgument implements CustomArgumentType.Converted<GameModeType, String>
+{
     @Override
-    public @NotNull GameModeType convert(@NotNull String s) throws CommandSyntaxException {
-        try {
+    public @NotNull GameModeType convert(@NotNull String s) throws CommandSyntaxException
+    {
+        try
+        {
             int id = Integer.parseInt(s);
-            for (GameModeType type : GameModeType.values()) {
-                if (type.getId() == id) {
+            for (GameModeType type : GameModeType.values())
+            {
+                if (type.getId() == id)
+                {
                     return type;
                 }
             }
-        } catch (NumberFormatException e) {
-            try {
+        }
+        catch (NumberFormatException e)
+        {
+            try
+            {
                 return GameModeType.valueOf(s.toUpperCase());
-            } catch (IllegalArgumentException ex) {
+            }
+            catch (IllegalArgumentException ex)
+            {
                 throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownArgument().create();
             }
         }
@@ -37,19 +44,20 @@ public class GameModeArgument implements CustomArgumentType.Converted<GameModeTy
     }
 
     @Override
-    public @NotNull ArgumentType<String> getNativeType() {
+    public @NotNull ArgumentType<String> getNativeType()
+    {
         return StringArgumentType.word();
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        for (GameModeType gameMode : GameModeType.values()) {
+    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder)
+    {
+        for (GameModeType gameMode : GameModeType.values())
+        {
             builder.suggest(gameMode.name());
             builder.suggest(gameMode.getId());
         }
 
-        return CompletableFuture.completedFuture(
-            builder.build()
-        );
+        return CompletableFuture.completedFuture(builder.build());
     }
 }

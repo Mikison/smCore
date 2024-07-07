@@ -6,51 +6,64 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import static dev.sonmiike.smcore.core.util.MiniFormatter.MM;
 
-public class ActionBarTask extends BukkitRunnable {
+public class ActionBarTask extends BukkitRunnable
+{
 
     private final Player player;
-    @Getter
-    private boolean isVanished;
-    @Getter
-    private boolean isGodMode;
+    @Getter private boolean isVanished;
+    @Getter private boolean isGodMode;
 
-    public ActionBarTask(Player player) {
+    public ActionBarTask(Player player)
+    {
         this.player = player;
     }
 
     @Override
-    public void run() {
-        if (player.isOnline()) {
+    public void run()
+    {
+        if (player.isOnline())
+        {
             updateActionBar();
-        } else {
+        }
+        else
+        {
             cancel();
         }
     }
 
-    public void setVanished(boolean isVanished) {
+    public void setVanished(boolean isVanished)
+    {
         this.isVanished = isVanished;
         updateActionBar();
     }
 
-    public void setGodMode(boolean isGodMode) {
+    public void setGodMode(boolean isGodMode)
+    {
         this.isGodMode = isGodMode;
         updateActionBar();
     }
 
-    private void updateActionBar() {
+    private void updateActionBar()
+    {
         StringBuilder sb = new StringBuilder();
 
-        if (isVanished) sb.append("<blue>VANISHED");
-        if (isGodMode) {
-            if (!sb.isEmpty()) {
+        if (isVanished)
+            sb.append("<blue>VANISHED");
+        if (isGodMode)
+        {
+            if (!sb.isEmpty())
+            {
                 sb.append(" <white>| ");
             }
             sb.append("<blue>GOD");
         }
 
-        if (sb.isEmpty()) {
+        if (sb.isEmpty())
+        {
             cancel();
-        } else {
+        }
+        else
+        {
             player.sendActionBar(MM."<white>»  \{sb}  <white>«");
         }
     }

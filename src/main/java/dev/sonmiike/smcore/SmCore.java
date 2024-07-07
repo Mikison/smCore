@@ -13,12 +13,9 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-
 @SuppressWarnings("UnstableApiUsage")
-public final class SmCore extends JavaPlugin {
+public final class SmCore extends JavaPlugin
+{
 
     //instance
     private JavaPlugin plugin;
@@ -27,25 +24,23 @@ public final class SmCore extends JavaPlugin {
     private TeamsManager teamsManager;
     private VanishManager vanishManager;
     private GodManager godManager;
-    @Getter
-    private NPCManager npcManager;
+    @Getter private NPCManager npcManager;
     private MuteManager muteManager;
     private TaskManager taskManager;
     private LuckPerms luckPerms;
 
-
     // Database
-    @Getter
-    private DatabaseManager databaseManager;
-
+    @Getter private DatabaseManager databaseManager;
 
     @Override
-    public void onEnable() {
+    public void onEnable()
+    {
         saveDefaultConfig();
 
         connectToDatabase();
         RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
-        if (provider != null) {
+        if (provider != null)
+        {
             luckPerms = provider.getProvider();
         }
         plugin = this;
@@ -61,10 +56,12 @@ public final class SmCore extends JavaPlugin {
     }
 
     @Override
-    public void onDisable() {
+    public void onDisable()
+    {
     }
 
-    public void connectToDatabase() {
+    public void connectToDatabase()
+    {
         String host = getConfig().getString("database.host");
         int port = getConfig().getInt("database.port");
         String database = getConfig().getString("database.database");
@@ -74,9 +71,11 @@ public final class SmCore extends JavaPlugin {
 
     }
 
-
-    private void registerListeners() {
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, vanishManager, godManager, teamsManager, npcManager), this);
+    private void registerListeners()
+    {
+        getServer().getPluginManager()
+                .registerEvents(new PlayerJoinListener(this, vanishManager, godManager, teamsManager, npcManager),
+                        this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(this, vanishManager, godManager), this);
         getServer().getPluginManager().registerEvents(new AsyncPlayerChatListener(this, muteManager), this);
         getServer().getPluginManager().registerEvents(new PlayerMoveListener(this), this);
@@ -85,16 +84,17 @@ public final class SmCore extends JavaPlugin {
         new LuckPermsListener(this, teamsManager, vanishManager, luckPerms);
     }
 
-    public void registerViaOnEnable(final SmCore plugin) {
+    public void registerViaOnEnable(final SmCore plugin)
+    {
         registerViaLifecycleEvents(plugin);
     }
 
-    private void registerViaLifecycleEvents(final SmCore plugin) {
+    private void registerViaLifecycleEvents(final SmCore plugin)
+    {
         final LifecycleEventManager<Plugin> lifecycleManager = plugin.getLifecycleManager();
         lifecycleManager.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             final Commands commands = event.registrar();
             NPCManager npcManager = plugin.getNpcManager();
-
 
             new GameModeCommand(plugin, commands);
             new NPCCommand(plugin, commands, npcManager);

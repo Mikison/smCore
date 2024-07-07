@@ -12,22 +12,26 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 
-public class GodModeListener implements Listener {
+public class GodModeListener implements Listener
+{
 
     private final GodManager godManager;
     private final VanishManager vanishManager;
 
-    public GodModeListener(GodManager godManager, VanishManager vanishManager) {
+    public GodModeListener(GodManager godManager, VanishManager vanishManager)
+    {
         this.godManager = godManager;
         this.vanishManager = vanishManager;
     }
 
-
     @EventHandler
-    void onDamage(EntityDamageEvent event) {
+    void onDamage(EntityDamageEvent event)
+    {
 
-        if (!(event.getEntity() instanceof Player player)) return;
-        if (godManager.isGod(player) || vanishManager.isVanished(player)) {
+        if (!(event.getEntity() instanceof Player player))
+            return;
+        if (godManager.isGod(player) || vanishManager.isVanished(player))
+        {
             event.setDamage(0);
             player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
             player.setFoodLevel(20);
@@ -36,24 +40,32 @@ public class GodModeListener implements Listener {
     }
 
     @EventHandler
-    void onFoodChange(FoodLevelChangeEvent event) {
-        if (!(event.getEntity() instanceof Player player)) return;
-        if (godManager.isGod(player) || vanishManager.isVanished(player)) {
+    void onFoodChange(FoodLevelChangeEvent event)
+    {
+        if (!(event.getEntity() instanceof Player player))
+            return;
+        if (godManager.isGod(player) || vanishManager.isVanished(player))
+        {
             event.setCancelled(true);
         }
     }
 
     @EventHandler
-    public void onEntityTarget(EntityTargetEvent event) {
+    public void onEntityTarget(EntityTargetEvent event)
+    {
         Entity target = event.getTarget();
-        if (target instanceof Player && (godManager.isGod((Player) target) || vanishManager.isVanished((Player) target))) {
+        if (target instanceof Player && (godManager.isGod((Player) target) || vanishManager.isVanished(
+                (Player) target)))
+        {
             event.setCancelled(true);
         }
     }
 
     @EventHandler
-    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        if (event.getEntity() instanceof Player && godManager.isGod((Player) event.getEntity())) {
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event)
+    {
+        if (event.getEntity() instanceof Player && godManager.isGod((Player) event.getEntity()))
+        {
             event.setCancelled(true);
         }
     }
